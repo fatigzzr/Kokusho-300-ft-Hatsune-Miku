@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Kokusho 300: ft. Hatsune Miku</string>
+    <string name="home_title">Inicio</string>
+    <string name="kanji_title">Laboratorio de Kanji</string>
+    <string name="kanji_instruction">Selecciona el radical</string>
+    <string name="rythm_title">Aprende con Ritmo</string>
+    <string name="new_record_text">¡Nuevo Record!</string>
+    <string name="points_text">puntos</string>
+    <string name="ok_text">Ok!</string>
+</resources>

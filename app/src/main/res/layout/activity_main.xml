@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:layout_margin="35dp">
+
+    <TextView
+        android:id="@+id/homeTextView"
+        style="@style/TitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/home_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/kanjiButton"
+        style="@style/DefaultText"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:layout_marginTop="60dp"
+        android:backgroundTint="@color/red_transparent"
+        android:text="@string/kanji_title"
+        android:textAlignment="textStart"
+        app:icon="@drawable/baseline_arrow_forward_ios_24"
+        app:iconTint="@color/red"
+        app:iconSize="30dp"
+        app:iconGravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/homeTextView"
+        app:shapeAppearanceOverlay="@style/RectangularShape" />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/DefaultText"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/red_transparent"
+        android:text="@string/kanji_title"
+        android:textAlignment="textStart"
+        app:icon="@drawable/baseline_arrow_forward_ios_24"
+        app:iconTint="@color/red"
+        app:iconSize="30dp"
+        app:iconGravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/kanjiButton"
+        app:shapeAppearanceOverlay="@style/RectangularShape" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
