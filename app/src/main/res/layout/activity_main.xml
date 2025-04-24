@@ -5,14 +5,15 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:layout_margin="35dp">
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/homeTextView"
         style="@style/TitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="35dp"
         android:text="@string/home_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,6 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:layout_marginTop="60dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
         android:backgroundTint="@color/red_transparent"
         android:text="@string/kanji_title"
         android:textAlignment="textStart"
@@ -37,17 +40,20 @@
         app:shapeAppearanceOverlay="@style/RectangularShape" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/gameButton"
         style="@style/DefaultText"
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:layout_marginTop="32dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="35dp"
         android:backgroundTint="@color/red_transparent"
-        android:text="@string/kanji_title"
+        android:text="@string/rhythm_title"
         android:textAlignment="textStart"
         app:icon="@drawable/baseline_arrow_forward_ios_24"
-        app:iconTint="@color/red"
-        app:iconSize="30dp"
         app:iconGravity="end"
+        app:iconSize="30dp"
+        app:iconTint="@color/red"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
