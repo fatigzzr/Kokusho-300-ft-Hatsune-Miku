@@ -54,5 +54,4 @@
         app:layout_constraintTop_toBottomOf="@+id/kanjiButton"
         app:shapeAppearanceOverlay="@style/RectangularShape" />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>

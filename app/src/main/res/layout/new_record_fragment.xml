@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/NewRecordFragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/red"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/new_record_text"
+        style="@style/recordText"/>
+
+    <TextView
+        android:id="@+id/pointsNewRecordTextView"
+        style="@style/recordText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="200sp"
+        android:includeFontPadding="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/points_text"
+        android:layout_marginBottom="5dp"
+        style="@style/recordText" />
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="175dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        app:shapeAppearanceOverlay="@style/RectangularShape"
+        android:text="@string/ok_text"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="5dp"
+        style="@style/recordBlackText" />
+
+</LinearLayout>

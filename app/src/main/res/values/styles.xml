@@ -16,4 +16,25 @@
     <style name="RectangularShape" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerSize">0dp</item>
     </style>
+
+    <style name="gameSongText" parent="@android:style/TextAppearance.Medium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textColor">@color/red</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="recordText" parent="@android:style/TextAppearance.Medium">
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="recordBlackText" parent="@android:style/TextAppearance.Medium">
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
