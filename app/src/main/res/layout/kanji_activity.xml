@@ -27,7 +27,7 @@
         app:layout_constraintStart_toEndOf="@+id/kanjiBackButton"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.fragment.app.FragmentContainerView
+    <FrameLayout
         android:id="@+id/mixKanjiFragmentContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
