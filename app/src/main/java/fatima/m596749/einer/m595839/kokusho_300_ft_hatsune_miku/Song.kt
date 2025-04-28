@@ -10,7 +10,7 @@ data class Song(
     val id: Int,
     val title: String,
     val artist: String,
-    val image: Image,
+    val image: ByteArray,
     val audio: String,
     val points: String
 )

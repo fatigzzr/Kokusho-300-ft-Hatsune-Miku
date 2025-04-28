@@ -2,6 +2,7 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "Component",
@@ -15,7 +16,12 @@ import androidx.room.PrimaryKey
                         entity = Radical::class,
                         parentColumns = ["id"],
                         childColumns = ["idRadical"],
-                        onDelete = ForeignKey.CASCADE) ])
+                        onDelete = ForeignKey.CASCADE) ],
+    indices = [
+        Index(value = ["idCharacter"]),
+        Index(value = ["idRadical"])
+    ]
+)
 data class Component(
     val idCharacter: Int,
     val idRadical: Int,

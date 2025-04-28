@@ -8,6 +8,6 @@ data class Character(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val character: String,
-    val reading: String,
+    val meaning: String,
     val found: Boolean
 )

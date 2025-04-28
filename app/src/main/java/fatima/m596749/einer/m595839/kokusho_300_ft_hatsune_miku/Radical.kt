@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class Radical(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val radical: String
+    val radical: String,
+    val meaning: String
 )

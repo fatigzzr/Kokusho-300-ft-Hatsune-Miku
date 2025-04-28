@@ -3,14 +3,14 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 import androidx.room.Entity
 import androidx.room.ForeignKey
 
-@Entity(tableName = "CharacterTranslation",
-    primaryKeys = ["idCharacter", "word"],
+@Entity(tableName = "CharacterReading",
+    primaryKeys = ["idCharacter", "reading"],
     foreignKeys = [ ForeignKey(
                         entity = Character::class,
                         parentColumns = ["id"],
                         childColumns = ["idCharacter"],
                         onDelete = ForeignKey.CASCADE) ])
-data class CharacterTranslation(
+data class CharacterReading(
     val idCharacter: Int,
-    val word: String
+    val reading: String
 )

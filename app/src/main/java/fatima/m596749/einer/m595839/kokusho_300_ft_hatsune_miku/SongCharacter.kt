@@ -25,4 +25,6 @@ data class SongCharacter(
     val idCharacter: Int,
     val time: Duration,
     val unlocked: Boolean
-)
+){
+
+}
