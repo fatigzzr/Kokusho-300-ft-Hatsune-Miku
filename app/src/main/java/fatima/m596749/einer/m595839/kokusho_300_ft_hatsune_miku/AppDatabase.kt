@@ -1278,11 +1278,11 @@ abstract class AppDatabase : RoomDatabase() {
 
         /*val songs = listOf(
 
-    )
+        )
 
-    val SongCharacters = listOf(
+        val SongCharacters = listOf(
 
-    )*/
+        )*/
 
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -1293,10 +1293,10 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "KanjiDB"
+                    "KanjiDB.db"
                 )
                     .fallbackToDestructiveMigration()
-                    .addCallback(object : Callback() {
+                    .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             Log.d("RoomDatabase", "onCreate...")

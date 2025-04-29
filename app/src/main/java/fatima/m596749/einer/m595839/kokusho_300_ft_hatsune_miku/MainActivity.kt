@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     // Create Main Activity Layout Binder
@@ -23,6 +26,11 @@ class MainActivity : AppCompatActivity() {
 
         val db = AppDatabase.getDatabase(applicationContext)
         Log.d("RoomDatabase", "Inicializando... $db")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val count = db.kanjiDao().getCharacterCount()
+            Log.d("RoomDatabase", "Numbero de registros en Character: $count")
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

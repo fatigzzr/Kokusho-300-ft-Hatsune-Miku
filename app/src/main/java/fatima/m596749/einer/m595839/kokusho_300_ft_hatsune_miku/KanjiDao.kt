@@ -3,6 +3,7 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
+import androidx.room.Query
 
 @Dao
 interface KanjiDao {
@@ -26,4 +27,7 @@ interface KanjiDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertSongCharacterBatch(SongCharacters: List<SongCharacter>)
+
+    @Query("SELECT COUNT(*) FROM Character")
+    suspend fun getCharacterCount(): Int
 } 
