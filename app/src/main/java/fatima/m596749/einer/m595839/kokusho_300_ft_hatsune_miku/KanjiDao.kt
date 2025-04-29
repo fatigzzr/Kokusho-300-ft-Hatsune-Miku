@@ -26,4 +26,4 @@ interface KanjiDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertSongCharacterBatch(SongCharacters: List<SongCharacter>)
-}
+} 

@@ -1,9 +1,9 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.TypeConverter
-import kotlin.time.Duration
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
+import java.time.Duration
 
 class Converters {
     @TypeConverter
@@ -16,13 +16,15 @@ class Converters {
         return Position.values()[ordinal]
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
     fun fromDuration(duration: Duration?): Long? {
-        return duration?.inWholeMilliseconds
+        return duration?.toMillis()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
     fun toDuration(milliseconds: Long?): Duration? {
-        return milliseconds?.toDuration(DurationUnit.MILLISECONDS)
+        return milliseconds?.let { Duration.ofMillis(it) }
     }
 }

@@ -2,7 +2,7 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import kotlin.time.Duration
+import java.time.Duration
 
 @Entity(tableName = "SongCharacter",
     primaryKeys = ["idSong", "idCharacter", "time"],
@@ -19,12 +19,11 @@ import kotlin.time.Duration
             childColumns = ["idCharacter"],
             onDelete = ForeignKey.CASCADE
         )
-    ])
+    ]
+)
 data class SongCharacter(
     val idSong: Int,
     val idCharacter: Int,
     val time: Duration,
     val unlocked: Boolean
-){
-
-}
+)
