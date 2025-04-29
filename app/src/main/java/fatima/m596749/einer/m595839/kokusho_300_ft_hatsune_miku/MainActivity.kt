@@ -2,6 +2,7 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(homeBinding.root)
 
         val db = AppDatabase.getDatabase(applicationContext)
+        Log.d("RoomDatabase", "Inicializando... $db")
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

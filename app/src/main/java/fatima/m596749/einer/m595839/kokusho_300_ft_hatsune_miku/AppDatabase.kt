@@ -1,6 +1,7 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -12,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-@Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 1)
+@Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun kanjiDao() : KanjiDao
@@ -1287,29 +1288,39 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
+            Log.d("RoomDatabase", "getDatabase...")
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "KanjiDB"
                 )
-                    .addCallback(object : RoomDatabase.Callback() {
+                    .fallbackToDestructiveMigration()
+                    .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-                            val scope = CoroutineScope(Dispatchers.IO)
+                            Log.d("RoomDatabase", "onCreate...")
 
-                            scope.launch {
-                                INSTANCE?.kanjiDao()?.insertCharacterBatch(characters)
-                                INSTANCE?.kanjiDao()?.insertCharacterWordBatch(words)
-                                INSTANCE?.kanjiDao()?.insertRadicalBatch(radicals)
-                                INSTANCE?.kanjiDao()?.insertCharacterReadingBatch(readings)
-                                INSTANCE?.kanjiDao()?.insertComponentBatch(components)
-                                //INSTANCE?.kanjiDao()?.insertSongBatch(songs)
-                                //INSTANCE?.kanjiDao()?.insertSongCharacterBatch(SongCharacters)
+                            CoroutineScope(Dispatchers.IO).launch {
+                                Log.d("RoomDatabase", "Insertando...")
+                                INSTANCE?.let { database ->
+
+                                    database.kanjiDao().insertCharacterBatch(characters)
+                                    database.kanjiDao().insertCharacterWordBatch(words)
+                                    database.kanjiDao().insertRadicalBatch(radicals)
+                                    database.kanjiDao().insertCharacterReadingBatch(readings)
+                                    database.kanjiDao().insertComponentBatch(components)
+                                    //database.kanjiDao()?.insertSongBatch(songs)
+                                    //database.kanjiDao()?.insertSongCharacterBatch(SongCharacters)
+                                }
                             }
                         }
                     })
                     .build()
+
+                val dbFile = context.getDatabasePath("KanjiDB")
+                Log.d("RoomDatabase", "Database file path: ${dbFile.absolutePath}")
+
                 INSTANCE = instance
                 instance
             }
