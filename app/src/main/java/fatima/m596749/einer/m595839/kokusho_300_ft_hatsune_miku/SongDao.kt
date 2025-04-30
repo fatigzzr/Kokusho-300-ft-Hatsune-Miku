@@ -19,10 +19,4 @@ interface SongDao {
     suspend fun insertSongCharactersWithTransaction(songCharacters: List<SongCharacter>) {
         insertSongCharacterBatch(songCharacters)
     }
-
-    @Query("SELECT COUNT(*) FROM SongCharacter")
-    suspend fun getsongCharacterCount(): Int
-
-    @Query("SELECT * FROM SongCharacter")
-    fun getAllSongChatacters(): LiveData<List<SongCharacter>>
 } 

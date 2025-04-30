@@ -21,7 +21,4 @@ interface KanjiDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertComponentBatch(components: List<Component>)
-
-    @Query("SELECT COUNT(*) FROM Character")
-    suspend fun getCharacterCount(): Int
 } 
