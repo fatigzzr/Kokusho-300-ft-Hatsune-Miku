@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Song")
 data class Song(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Int,
     val title: String,
     val artist: String,
     val image: ByteArray,
-    val audio: String,
-    val points: String
+    val audio: ByteArray,
+    val points: Int
 )

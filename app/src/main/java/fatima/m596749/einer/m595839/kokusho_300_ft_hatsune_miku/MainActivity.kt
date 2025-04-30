@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -29,7 +30,12 @@ class MainActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.IO).launch {
             val count = db.kanjiDao().getCharacterCount()
-            Log.d("RoomDatabase", "Numbero de registros en Character: $count")
+            Log.d("RoomDatabase", "Before: Numero de registros en Character: $count")
+
+            AppDatabase.exportDatabase(applicationContext)
+
+            val count2 = db.kanjiDao().getCharacterCount()
+            Log.d("RoomDatabase", "After: Numero de registros en Character: $count2")
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

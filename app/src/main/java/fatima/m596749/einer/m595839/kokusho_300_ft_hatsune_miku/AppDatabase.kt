@@ -1,7 +1,9 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -11,13 +13,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 
-@Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 2)
+@Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun kanjiDao() : KanjiDao
-    abstract fun gameDao() : GameDao
+    abstract fun songDao() : SongDao
 
     companion object {
         val characters = listOf(
@@ -1276,53 +1280,64 @@ abstract class AppDatabase : RoomDatabase() {
             Component(100, 63, Position.OUTSIDE)
         )
 
-        /*val songs = listOf(
-
-        )
-
-        val SongCharacters = listOf(
-
-        )*/
-
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
             Log.d("RoomDatabase", "getDatabase...")
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "KanjiDB.db"
-                )
-                    .fallbackToDestructiveMigration()
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            Log.d("RoomDatabase", "onCreate...")
 
-                            CoroutineScope(Dispatchers.IO).launch {
-                                Log.d("RoomDatabase", "Insertando...")
-                                INSTANCE?.let { database ->
+            val dbFile = context.getDatabasePath("KanjiDB.db")
 
-                                    database.kanjiDao().insertCharacterBatch(characters)
-                                    database.kanjiDao().insertCharacterWordBatch(words)
-                                    database.kanjiDao().insertRadicalBatch(radicals)
-                                    database.kanjiDao().insertCharacterReadingBatch(readings)
-                                    database.kanjiDao().insertComponentBatch(components)
-                                    //database.kanjiDao()?.insertSongBatch(songs)
-                                    //database.kanjiDao()?.insertSongCharacterBatch(SongCharacters)
-                                }
-                            }
+            lateinit var instance: AppDatabase
+
+            instance = Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "KanjiDB.db"
+            )
+                .addCallback(object : RoomDatabase.Callback() {
+                    @RequiresApi(Build.VERSION_CODES.O)
+                    override fun onCreate(db: SupportSQLiteDatabase) {
+                        super.onCreate(db)
+                        Log.d("RoomDatabase", "onCreate...")
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            Log.d("RoomDatabase", "Insertando...")
+                            instance.kanjiDao().insertCharacterBatch(characters)
+                            instance.kanjiDao().insertCharacterWordBatch(words)
+                            instance.kanjiDao().insertRadicalBatch(radicals)
+                            instance.kanjiDao().insertCharacterReadingBatch(readings)
+                            instance.kanjiDao().insertComponentBatch(components)
+
+                            val songRepository = SongRepository(context, instance.songDao())
+                            songRepository.insertInitialSongs()
+                            songRepository.insertInitialSongCharacters()
                         }
-                    })
-                    .build()
+                    }
+                })
+                .build()
 
-                val dbFile = context.getDatabasePath("KanjiDB")
-                Log.d("RoomDatabase", "Database file path: ${dbFile.absolutePath}")
+            instance.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = ON;")
+            Log.d("RoomDatabase", "Foreign keys enabled.")
 
-                INSTANCE = instance
-                instance
+            Log.d("RoomDatabase", "Database file path: ${dbFile.absolutePath}")
+
+            INSTANCE = instance
+            return instance
+        }
+
+        fun exportDatabase(context: Context) {
+            val dbName = "KanjiDB.db"
+            val dbFile = context.getDatabasePath(dbName)
+
+            val exportDir = context.getExternalFilesDir(null)  // or use Downloads with proper permissions
+            val exportFile = File(exportDir, "$dbName-export.db")
+
+            try {
+                dbFile.copyTo(exportFile, overwrite = true)
+                Log.d("RoomDatabase", "Database exported to: ${exportFile.absolutePath}")
+            } catch (e: Exception) {
+                Log.e("RoomDatabase", "Failed to export database", e)
             }
         }
     }

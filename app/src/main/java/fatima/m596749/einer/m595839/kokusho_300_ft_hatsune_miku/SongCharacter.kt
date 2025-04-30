@@ -24,6 +24,5 @@ import java.time.Duration
 data class SongCharacter(
     val idSong: Int,
     val idCharacter: Int,
-    val time: Duration,
-    val unlocked: Boolean
+    val time: Long
 )
