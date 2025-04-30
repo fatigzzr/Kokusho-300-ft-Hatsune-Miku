@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.GameActivityBinding
 
-class GameActivity : AppCompatActivity(), Communicator {
+class GameActivity : AppCompatActivity() {
     // Create Game Activity Layout Binder
     private lateinit var gameBinding: GameActivityBinding
     // Song Items Recycler View Adapter

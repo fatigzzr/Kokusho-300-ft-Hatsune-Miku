@@ -1,17 +1,14 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.ActivityMainBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     // Create Main Activity Layout Binder

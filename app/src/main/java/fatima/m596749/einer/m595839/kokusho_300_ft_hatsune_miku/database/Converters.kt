@@ -1,4 +1,4 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database
 
 import android.os.Build
 import androidx.annotation.RequiresApi

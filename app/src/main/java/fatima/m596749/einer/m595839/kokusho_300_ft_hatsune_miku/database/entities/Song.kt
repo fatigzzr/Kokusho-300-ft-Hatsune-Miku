@@ -1,6 +1,5 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities
 
-import android.media.Image
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

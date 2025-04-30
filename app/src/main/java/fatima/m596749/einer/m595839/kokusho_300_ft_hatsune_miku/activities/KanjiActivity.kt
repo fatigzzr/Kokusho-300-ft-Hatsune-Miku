@@ -1,11 +1,11 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.ActivityMainBinding
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.KanjiActivityBinding
 
 class KanjiActivity : AppCompatActivity() {
