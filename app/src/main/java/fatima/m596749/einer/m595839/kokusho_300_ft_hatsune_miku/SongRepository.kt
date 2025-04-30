@@ -84,10 +84,6 @@ class SongRepository(private val context: Context, private val songDao: SongDao)
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun insertInitialSongCharacters() {
-        Log.d("SongRepository", "Inserting ${songCharacters.size} song characters.")
-        songCharacters.forEach {
-            Log.d("RoomDatabase", "SongCharacter: $it")
-        }
         songDao.insertSongCharactersWithTransaction(songCharacters)
     }
 }

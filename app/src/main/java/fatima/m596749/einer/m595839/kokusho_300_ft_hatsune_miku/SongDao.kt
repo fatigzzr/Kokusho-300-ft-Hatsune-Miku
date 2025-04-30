@@ -1,5 +1,6 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -18,4 +19,10 @@ interface SongDao {
     suspend fun insertSongCharactersWithTransaction(songCharacters: List<SongCharacter>) {
         insertSongCharacterBatch(songCharacters)
     }
+
+    @Query("SELECT COUNT(*) FROM SongCharacter")
+    suspend fun getsongCharacterCount(): Int
+
+    @Query("SELECT * FROM SongCharacter")
+    fun getAllSongChatacters(): LiveData<List<SongCharacter>>
 } 

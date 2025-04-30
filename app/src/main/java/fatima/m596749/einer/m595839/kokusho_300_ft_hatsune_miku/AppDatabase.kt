@@ -1284,8 +1284,6 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            Log.d("RoomDatabase", "getDatabase...")
-
             val dbFile = context.getDatabasePath("KanjiDB.db")
 
             lateinit var instance: AppDatabase
@@ -1295,20 +1293,21 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 "KanjiDB.db"
             )
+                // Delete the old database and recreate it with schema version changes
+                .fallbackToDestructiveMigration()
                 .addCallback(object : RoomDatabase.Callback() {
                     @RequiresApi(Build.VERSION_CODES.O)
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        Log.d("RoomDatabase", "onCreate...")
 
                         CoroutineScope(Dispatchers.IO).launch {
-                            Log.d("RoomDatabase", "Insertando...")
                             instance.kanjiDao().insertCharacterBatch(characters)
                             instance.kanjiDao().insertCharacterWordBatch(words)
                             instance.kanjiDao().insertRadicalBatch(radicals)
                             instance.kanjiDao().insertCharacterReadingBatch(readings)
                             instance.kanjiDao().insertComponentBatch(components)
 
+                            // Add Songs data
                             val songRepository = SongRepository(context, instance.songDao())
                             songRepository.insertInitialSongs()
                             songRepository.insertInitialSongCharacters()
@@ -1318,9 +1317,6 @@ abstract class AppDatabase : RoomDatabase() {
                 .build()
 
             instance.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = ON;")
-            Log.d("RoomDatabase", "Foreign keys enabled.")
-
-            Log.d("RoomDatabase", "Database file path: ${dbFile.absolutePath}")
 
             INSTANCE = instance
             return instance

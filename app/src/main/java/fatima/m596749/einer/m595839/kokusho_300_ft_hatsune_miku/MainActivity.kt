@@ -26,17 +26,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(homeBinding.root)
 
         val db = AppDatabase.getDatabase(applicationContext)
-        Log.d("RoomDatabase", "Inicializando... $db")
-
-        CoroutineScope(Dispatchers.IO).launch {
-            val count = db.kanjiDao().getCharacterCount()
-            Log.d("RoomDatabase", "Before: Numero de registros en Character: $count")
-
-            AppDatabase.exportDatabase(applicationContext)
-
-            val count2 = db.kanjiDao().getCharacterCount()
-            Log.d("RoomDatabase", "After: Numero de registros en Character: $count2")
-        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
