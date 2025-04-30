@@ -1,4 +1,4 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database
 
 import android.content.Context
 import android.os.Build
@@ -7,13 +7,17 @@ import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Character
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.CharacterReading
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.CharacterWord
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Component
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Radical
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.SongCharacter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 

@@ -1,8 +1,7 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import java.time.Duration
 
 @Entity(tableName = "SongCharacter",
     primaryKeys = ["idSong", "idCharacter", "time"],
