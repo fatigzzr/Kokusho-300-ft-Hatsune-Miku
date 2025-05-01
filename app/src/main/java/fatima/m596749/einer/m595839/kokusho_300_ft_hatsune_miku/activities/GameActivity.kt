@@ -51,17 +51,6 @@ class GameActivity : AppCompatActivity(), Communicator {
 
         db = AppDatabase.getDatabase(applicationContext)
 
-        // QUITAR !!!!!!!!!!!!
-        CoroutineScope(Dispatchers.IO).launch {
-            db.kanjiDao().updateChar(Character(21, "一", "one", true))
-
-            // Query the updated character
-            val updatedCharacter = db.kanjiDao().getCharacterById(21) // Assuming you have a query method
-            withContext(Dispatchers.Main) {
-                Log.d("UpdateTest", "Updated Character: $updatedCharacter")
-            }
-        }
-
         backButton()
         updateListSongs()
         initializeRecyclerView()

@@ -13,24 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.core.view.children
-import be.tarsos.dsp.AudioDispatcher
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.SongGameFragmentBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import be.tarsos.dsp.io.jvm.AudioDispatcherFactory
-import be.tarsos.dsp.onsets.OnsetHandler
-import be.tarsos.dsp.onsets.PercussionOnsetDetector
-import be.tarsos.dsp.ui.layers.BeatLayer
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.NewRecordFragmentBinding
 import kotlinx.coroutines.delay
-import java.io.File
-import java.io.OutputStream
-import java.io.FileOutputStream
-import java.io.RandomAccessFile
 
 
 class GameFragment : Fragment() {
