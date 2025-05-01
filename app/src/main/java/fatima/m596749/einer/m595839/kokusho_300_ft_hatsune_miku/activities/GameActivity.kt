@@ -1,23 +1,38 @@
-package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku
+package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.Communicator
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.GameFragment
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.SongAdapter
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Character
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.GameActivityBinding
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), Communicator {
     // Create Game Activity Layout Binder
     private lateinit var gameBinding: GameActivityBinding
     // Song Items Recycler View Adapter
     private lateinit var songAdapter: SongAdapter
-
-    // TEMP !!!!!!!!!!!!!!!!!!
-    private lateinit var songs: List<String>
+    // Songs List
+    private var songsListId: ArrayList<Int> = ArrayList()
+    // Type List
+    private var typesList: ArrayList<Int>  = ArrayList()
+    // Database
+    private lateinit var db: AppDatabase
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,23 +49,68 @@ class GameActivity : AppCompatActivity() {
             insets
         }
 
-        // TEMP !!!!!!!!!!!!!!!!!!
-        songs = mutableListOf("CANCION 1")
+        db = AppDatabase.getDatabase(applicationContext)
 
-        // Back Button - Go back to Home
+        // QUITAR !!!!!!!!!!!!
+        CoroutineScope(Dispatchers.IO).launch {
+            db.kanjiDao().updateChar(Character(21, "一", "one", true))
+
+            // Query the updated character
+            val updatedCharacter = db.kanjiDao().getCharacterById(21) // Assuming you have a query method
+            withContext(Dispatchers.Main) {
+                Log.d("UpdateTest", "Updated Character: $updatedCharacter")
+            }
+        }
+
+        backButton()
+        updateListSongs()
+        initializeRecyclerView()
+    }
+
+    // Back Button - Go back to Home
+    fun backButton() {
         gameBinding.gameBackButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+    }
 
-        // Initialize Song Recycler View Adapter as Vertical list with a click listener
-        songAdapter = SongAdapter(songs) { position ->
-            passSongId(position)
+    // Update the list of Songs according to the Songs in the Database
+    fun updateListSongs() {
+        db.songDao().getSongsId().observe(this@GameActivity) { ids ->
+            songsListId.clear()
+
+            for (id in ids) {
+                // Add id
+                songsListId.add(id)
+
+                // Add type
+                CoroutineScope(Dispatchers.IO).launch {
+                    val countUnlocked = db.songDao().foundSong(id)
+
+                    if (countUnlocked >= 1) {
+                        typesList.add(0)
+                    }
+                    else {
+                        typesList.add(1)
+                    }
+                }
+            }
+
+            songAdapter.notifyDataSetChanged()
+        }
+    }
+
+    // Initialize Song Recycler View Adapter as Vertical list with a click listener
+    fun initializeRecyclerView() {
+        songAdapter = SongAdapter(this, songsListId, db, typesList) { position ->
+            passSongId(songsListId[position])
         }
         gameBinding.songRecyclerView.adapter = songAdapter
         gameBinding.songRecyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
     }
 
+    // Pass the Song ID
     override fun passSongId(id: Int) {
         val fragment = GameFragment.newInstance(id)
 
