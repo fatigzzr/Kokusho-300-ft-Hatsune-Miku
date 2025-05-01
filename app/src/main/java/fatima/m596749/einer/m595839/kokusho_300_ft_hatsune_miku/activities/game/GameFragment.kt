@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.transition.Visibility
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.SongGameFragmentBinding
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 
 class GameFragment : Fragment() {
@@ -29,7 +31,11 @@ class GameFragment : Fragment() {
     private var mediaPlayer: MediaPlayer? = null
     private var beatsRight = ArrayList<Float>()
     private var beatsLeft = ArrayList<Float>()
+    private var beatsRandomKanji = ArrayList<Float>()
     private var points = 0
+    private lateinit var options: List<CharRead>
+    private var show = false
+    private var correctSide = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +51,8 @@ class GameFragment : Fragment() {
 
         songId?.let { songId ->
             CoroutineScope(Dispatchers.IO).launch {
+                options = db.kanjiDao().getCharReading()
+
                 playAudio("song${songId}.mp3")
                 val beats = loadBeats("beats${songId}.txt")
                 triggerPerBeat(beatsLeft, beatsRight)
@@ -74,6 +82,7 @@ class GameFragment : Fragment() {
         mediaPlayer = MediaPlayer()
             .apply {
                 setDataSource(fileDescriptor.fileDescriptor, fileDescriptor.startOffset, fileDescriptor.length)
+                fileDescriptor.close()
                 prepare()
                 start()
             }
@@ -96,27 +105,68 @@ class GameFragment : Fragment() {
 
     fun loadBeats(filename: String) {
         try {
-            val inputStream = requireContext().assets.open(filename)
-            inputStream.bufferedReader().useLines { lines ->
-                var index = 0
+            requireContext().assets.open(filename).use { inputStream ->
+                inputStream.bufferedReader().useLines { lines ->
+                    var index = 0
+                    var prev2  = ArrayDeque<Pair<String, Float>>()
 
-                lines.forEach { line ->
-                    if (index % 2 == 0) {
-                        val beat = line.toFloat()
-                        // 1-4-> right (0.4), 5-8-> left (0.4), 9-10-> both (0.2)
-                        val randomChoice = (1..10).random()
+                    lines.forEach { line ->
+                        if (index % 2 == 0) {
+                            val beat = line.toFloat()
+                            // 1-4-> right (0.4), 5-8-> left (0.4), 9-> both (0.1), 10-> both with kanji (0.1)
+                            val randomChoice = (1..10).random()
 
-                        when {
-                            randomChoice <= 4 -> beatsRight.add(beat)
-                            randomChoice <= 8 -> beatsLeft.add(beat)
-                            else -> {
-                                beatsRight.add(beat)
-                                beatsLeft.add(beat)
+                            when {
+                                randomChoice <= 4 -> {
+                                    beatsRight.add(beat)
+                                    prev2.addLast("right" to beat)
+                                }
+                                randomChoice <= 8 -> {
+                                    beatsLeft.add(beat)
+                                    prev2.addLast("left" to beat)
+                                }
+                                randomChoice == 9 -> {
+                                    beatsRight.add(beat)
+                                    beatsLeft.add(beat)
+                                    prev2.addLast("both" to beat)
+                                }
+
+                                else -> {
+                                    repeat(2) {
+                                        if (prev2.isNotEmpty()) {
+                                            val (type, beat) = prev2.removeLast()
+
+                                            when (type) {
+                                                "right" -> beatsRight.remove(beat)
+                                                "left" -> beatsLeft.remove(beat)
+                                                "both" -> {
+                                                    beatsRight.remove(beat)
+                                                    beatsLeft.remove(beat)
+                                                }
+                                                "kanji" -> {
+                                                    beatsRight.remove(beat)
+                                                    beatsLeft.remove(beat)
+                                                    beatsRandomKanji.remove(beat)
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    beatsRight.add(beat)
+                                    beatsLeft.add(beat)
+                                    beatsRandomKanji.add(beat)
+
+                                    prev2.addLast("kanji" to beat)
+                                }
+                            }
+
+                            if (prev2.size > 2) {
+                                prev2.removeFirst()
                             }
                         }
-                    }
 
-                    index++
+                        index++
+                    }
                 }
             }
         }
@@ -137,6 +187,10 @@ class GameFragment : Fragment() {
                         delay(delay)
                     }
 
+                    if (show) {
+                        continue
+                    }
+
                     fallAnimationRed()
                 }
             }
@@ -149,12 +203,41 @@ class GameFragment : Fragment() {
                         delay(delay)
                     }
 
+                    if (show) {
+                        continue
+                    }
+
                     fallAnimationGreen()
+                }
+            }
+
+            val randomKanji = launch {
+                for (beat in beatsRandomKanji) {
+                    val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
+
+                    if (delay > 0) {
+                        delay(delay)
+                    }
+
+                    if (show) {
+                        continue
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        showRandomKanji()
+                    }
+
+                    delay(2000)
+
+                    withContext(Dispatchers.Main) {
+                        unShowRandomKanji()
+                    }
                 }
             }
 
             right.join()
             left.join()
+            randomKanji.join()
         }
     }
 
@@ -175,7 +258,7 @@ class GameFragment : Fragment() {
         return newCircle
     }
 
-    fun fallAnimation(newCircle: ImageView) {
+    fun fallAnimation(newCircle: ImageView, side: Int) {
         val drumY = gameBinding.redDrum.y
         val drumHeight = gameBinding.redDrum.height
         val targetY = drumY + drumHeight / 4 + 40
@@ -185,10 +268,6 @@ class GameFragment : Fragment() {
             val threshold = 100 * resources.displayMetrics.density // 50 dp
 
             if (distance <= threshold) {
-                // Update points
-                points += 5
-                gameBinding.pointsTextView.text = points.toString()
-
                 newCircle.animate().cancel()
 
                 val parent = newCircle.parent as? ViewGroup
@@ -199,6 +278,17 @@ class GameFragment : Fragment() {
                     // Re-enable layout transitions
                     parent.layoutTransition = android.animation.LayoutTransition()
                 }
+
+                // Update points
+                if (show) {
+                    if (correctSide == side) {
+                        points += 10
+                    }
+                }
+                else {
+                    points += 5
+                }
+                gameBinding.pointsTextView.text = points.toString()
             }
         }
 
@@ -231,15 +321,53 @@ class GameFragment : Fragment() {
     fun fallAnimationRed() {
         CoroutineScope(Dispatchers.Main).launch {
             val newCircle = createCircle(R.drawable.circle_red, gameBinding.leftCircleContainer)
-            fallAnimation(newCircle)
+            fallAnimation(newCircle, 1)
         }
     }
 
     fun fallAnimationGreen() {
         CoroutineScope(Dispatchers.Main).launch {
             val newCircle = createCircle(R.drawable.circle_green, gameBinding.rightCircleContainer)
-            fallAnimation(newCircle)
+            fallAnimation(newCircle, 2)
         }
+    }
+
+    fun showRandomKanji() {
+        val size = options.size
+        val randomIndex = (0..size-1).random()
+        val randomDrum = (1..2).random()
+
+        var randomIndex2: Int
+        do {
+            randomIndex2 = (0..size - 1).random()
+        } while (randomIndex2 == randomIndex)
+
+        gameBinding.readingTextView.visibility = View.VISIBLE
+        gameBinding.readingTextView.text = options[randomIndex].reading
+
+        when (randomDrum) {
+            1 -> {
+                gameBinding.redDrumTextView.text = options[randomIndex].character
+                gameBinding.greenDrumTextView.text = options[randomIndex2].character
+            }
+            2 -> {
+                gameBinding.redDrumTextView.text = options[randomIndex2].character
+                gameBinding.greenDrumTextView.text = options[randomIndex].character
+            }
+        }
+
+        show = true
+        correctSide = randomDrum
+    }
+
+    fun unShowRandomKanji() {
+        gameBinding.readingTextView.visibility = View.INVISIBLE
+        gameBinding.readingTextView.text = ""
+        gameBinding.redDrumTextView.text = ""
+        gameBinding.greenDrumTextView.text = ""
+
+        show = false
+        correctSide = 0
     }
 
     companion object {
