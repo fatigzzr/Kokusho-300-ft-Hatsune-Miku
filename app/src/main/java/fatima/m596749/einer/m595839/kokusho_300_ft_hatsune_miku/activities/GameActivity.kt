@@ -68,6 +68,7 @@ class GameActivity : AppCompatActivity(), Communicator {
     fun updateListSongs() {
         db.songDao().getSongsId().observe(this@GameActivity) { ids ->
             songsListId.clear()
+            typesList.clear()
 
             for (id in ids) {
                 // Add id
@@ -81,7 +82,8 @@ class GameActivity : AppCompatActivity(), Communicator {
                         typesList.add(0)
                     }
                     else {
-                        typesList.add(1)
+                        // CAMBIAR A 1 !!!!!!!!!!!!!!!!!!!!
+                        typesList.add(0)
                     }
                 }
             }

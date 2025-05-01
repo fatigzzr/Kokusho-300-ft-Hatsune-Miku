@@ -89,7 +89,7 @@ class SongAdapter(val context: Context,
     }
 
     override fun getItemViewType(position: Int): Int {
-        return types[position]
+        return if (position < types.size) types[position] else 0
     }
 
     companion object {
