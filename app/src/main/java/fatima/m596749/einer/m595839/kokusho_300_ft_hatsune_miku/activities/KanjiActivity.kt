@@ -2,6 +2,8 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +18,7 @@ import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppData
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.KanjiDao
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.Position
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.RadicalAdapter
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.CharacterWord
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.KanjiActivityBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.RadicalSectionBinding
 import kotlinx.coroutines.CoroutineScope
@@ -55,6 +58,9 @@ class KanjiActivity : AppCompatActivity() {
             "KanjiDB.db"
         ).build().kanjiDao()
 
+        val prevButton = findViewById<Button>(R.id.prevWordButton)
+        val nextButton = findViewById<Button>(R.id.nextWordButton)
+
         CoroutineScope(Dispatchers.IO).launch {
             val allRadicals = kanjiDao.getAllRadicalsWithPosition()
 
@@ -91,6 +97,42 @@ class KanjiActivity : AppCompatActivity() {
                     }
 
                     binding.sectionContainer.addView(sectionBinding.root)
+                }
+            }
+        }
+
+        var currentWordIndex = 0
+        //val kanjiId = intent.getIntExtra("KANJI_ID", -1) // or wherever you store the ID
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val character = kanjiDao.getCharacterById(1)
+            val wordList = kanjiDao.getWordsByCharacterId(1)
+
+            withContext(Dispatchers.Main) {
+                //binding.meaningTextView.text = character.meaning
+
+                fun displayWord(word: CharacterWord) {
+                    binding.kanjiReading.text = word.wordKanji
+                    binding.hiraganaReading.text = word.wordHiragana
+                    binding.englishReading.text = word.wordEnglish
+                }
+
+                if (wordList.isNotEmpty()) {
+                    displayWord(wordList[0])
+                }
+
+                prevButton.setOnClickListener {
+                    if (wordList.isNotEmpty()) {
+                        currentWordIndex = (currentWordIndex - 1 + wordList.size) % wordList.size
+                        displayWord(wordList[currentWordIndex])
+                    }
+                }
+
+                nextButton.setOnClickListener {
+                    if (wordList.isNotEmpty()) {
+                        currentWordIndex = (currentWordIndex + 1) % wordList.size
+                        displayWord(wordList[currentWordIndex])
+                    }
                 }
             }
         }

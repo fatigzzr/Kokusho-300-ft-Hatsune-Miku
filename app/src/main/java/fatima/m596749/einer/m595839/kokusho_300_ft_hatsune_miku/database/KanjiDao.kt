@@ -34,6 +34,13 @@ interface KanjiDao {
         @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter WHERE found == true")
         fun getCharReading() : List<CharRead>
     */
+
+    @Query("SELECT * FROM Character WHERE id = :id")
+    suspend fun getCharacterById(id: Int): Character
+
+    @Query("SELECT * FROM CharacterWord WHERE idCharacter = :id")
+    suspend fun getWordsByCharacterId(id: Int): List<CharacterWord>
+
     @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter")
     fun getCharReading() : List<CharRead>
 

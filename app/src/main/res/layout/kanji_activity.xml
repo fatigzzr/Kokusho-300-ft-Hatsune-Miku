@@ -27,6 +27,76 @@
         app:layout_constraintStart_toEndOf="@+id/kanjiBackButton"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/topSectionContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Kanji Parts Box -->
+        <FrameLayout
+            android:id="@+id/kanjiPartsBox"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="#EEEEEE" />
+
+        <!-- Meaning and Word Viewer Container -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="16dp">
+
+            <!-- Kanji Meaning -->
+            <TextView
+                android:id="@+id/kanjiMeaning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp" />
+
+            <!-- Word Viewer -->
+            <LinearLayout
+                android:id="@+id/wordViewer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp">
+
+                <Button
+                    android:id="@+id/prevWordButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Prev"
+                    android:contentDescription="Previous Word" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="8dp">
+
+                    <TextView android:id="@+id/kanjiReading" android:text="漢字" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/hiraganaReading" android:text="かんじ" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:id="@+id/englishReading" android:text="Kanji" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/nextWordButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Next"
+                    android:contentDescription="Next Word" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/mixKanjiFragmentContainer"
         android:layout_width="0dp"

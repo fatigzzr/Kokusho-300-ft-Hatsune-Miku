@@ -37,4 +37,8 @@
         <item name="android:textSize">26sp</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorControlHighlight">@color/red_transparent</item>
+    </style>
 </resources>
