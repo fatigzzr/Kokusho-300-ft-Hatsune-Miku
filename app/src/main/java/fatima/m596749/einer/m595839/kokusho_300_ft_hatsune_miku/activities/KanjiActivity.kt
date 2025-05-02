@@ -60,14 +60,14 @@ class KanjiActivity : AppCompatActivity() {
 
             val grouped = allRadicals.groupBy { it.position }
 
-            rightRadicals = grouped[Position.RIGHT]?.map { it.radical } ?: emptyList()
-            leftRadicals = grouped[Position.LEFT]?.map { it.radical } ?: emptyList()
-            upRadicals = grouped[Position.UP]?.map { it.radical } ?: emptyList()
-            downRadicals = grouped[Position.DOWN]?.map { it.radical } ?: emptyList()
-            outsideRadicals = grouped[Position.OUTSIDE]?.map { it.radical } ?: emptyList()
-            hangingRadicals = grouped[Position.HANGING]?.map { it.radical } ?: emptyList()
-            chairRadicals = grouped[Position.CHAIR]?.map { it.radical } ?: emptyList()
-            otherRadicals = grouped[Position.OTHER]?.map { it.radical } ?: emptyList()
+            rightRadicals = grouped[Position.RIGHT]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            leftRadicals = grouped[Position.LEFT]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            upRadicals = grouped[Position.UP]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            downRadicals = grouped[Position.DOWN]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            outsideRadicals = grouped[Position.OUTSIDE]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            hangingRadicals = grouped[Position.HANGING]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            chairRadicals = grouped[Position.CHAIR]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
+            otherRadicals = grouped[Position.OTHER]?.map { it.radical }?.toSet()?.toList() ?: emptyList()
 
             withContext(Dispatchers.Main) {
                 val sectionData = listOf(
