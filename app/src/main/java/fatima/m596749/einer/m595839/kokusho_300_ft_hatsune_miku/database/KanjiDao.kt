@@ -46,4 +46,7 @@ interface KanjiDao {
 
     @Query("SELECT Radical.id, Radical.radical, Radical.meaning, Component.position FROM Radical INNER JOIN Component ON Radical.id = Component.idRadical")
     fun getAllRadicalsWithPosition(): List<KanjiActivity.RadicalWithPosition>
+
+    @Query("SELECT * FROM Component")
+    suspend fun getAllComponents(): List<Component>
 } 
