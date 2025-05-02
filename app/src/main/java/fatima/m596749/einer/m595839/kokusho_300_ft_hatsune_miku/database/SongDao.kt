@@ -1,5 +1,6 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database
 
+import android.graphics.Point
 import android.widget.GridLayout.Spec
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
@@ -7,6 +8,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.SongInfo
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.SongCharacter
@@ -32,6 +34,15 @@ interface SongDao {
     @Query("SELECT title, points FROM Song WHERE id= :id")
     fun getSongInfo(id: Int): SongInfo
 
-    @Query("SELECT COUNT(*) FROM SongCharacter JOIN Character ON SongCharacter.idSong = Character.id WHERE found = True AND idSong = :id")
+    // Get how many found characters an specific song has
+    @Query("SELECT COUNT(DISTINCT idCharacter) FROM SongCharacter JOIN Character ON SongCharacter.idCharacter = Character.id WHERE found = True AND idSong = :id")
     fun foundSong(id: Int): Int
+
+    // Get record points of an specific song
+    @Query("SELECT points FROM Song where id = :id")
+    fun getPoints(id: Int): Int
+
+    // Update record points of an specific song
+    @Query("UPDATE Song SET points = :points WHERE id = :id")
+    fun updatePoints(id: Int, points: Int)
 } 

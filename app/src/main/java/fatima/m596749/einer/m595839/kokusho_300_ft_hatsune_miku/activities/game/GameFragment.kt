@@ -5,23 +5,33 @@ import android.animation.ObjectAnimator
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.MediaStore.Audio
+import android.renderscript.ScriptGroup.Binding
 import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.CorrectionInfo
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.PopupWindow
+import androidx.lifecycle.lifecycleScope
 import androidx.transition.Visibility
+import androidx.viewbinding.ViewBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.SongGameFragmentBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.GameActivity
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.NewRecordFragmentBinding
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.PointsFragmentBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.sql.Time
 
 
 class GameFragment : Fragment() {
@@ -54,7 +64,7 @@ class GameFragment : Fragment() {
                 options = db.kanjiDao().getCharReading()
 
                 playAudio("song${songId}.mp3")
-                val beats = loadBeats("beats${songId}.txt")
+                loadBeats("beats${songId}.txt")
                 triggerPerBeat(beatsLeft, beatsRight)
             }
         }
@@ -89,6 +99,7 @@ class GameFragment : Fragment() {
 
         mediaPlayer?.setOnCompletionListener {
             stopAudio()
+            checkRecord()
         }
     }
 
@@ -113,6 +124,7 @@ class GameFragment : Fragment() {
                     lines.forEach { line ->
                         if (index % 2 == 0) {
                             val beat = line.toFloat()
+
                             // 1-4-> right (0.4), 5-8-> left (0.4), 9-> both (0.1), 10-> both with kanji (0.1)
                             val randomChoice = (1..10).random()
 
@@ -121,10 +133,12 @@ class GameFragment : Fragment() {
                                     beatsRight.add(beat)
                                     prev2.addLast("right" to beat)
                                 }
+
                                 randomChoice <= 8 -> {
                                     beatsLeft.add(beat)
                                     prev2.addLast("left" to beat)
                                 }
+
                                 randomChoice == 9 -> {
                                     beatsRight.add(beat)
                                     beatsLeft.add(beat)
@@ -143,6 +157,7 @@ class GameFragment : Fragment() {
                                                     beatsRight.remove(beat)
                                                     beatsLeft.remove(beat)
                                                 }
+
                                                 "kanji" -> {
                                                     beatsRight.remove(beat)
                                                     beatsLeft.remove(beat)
@@ -226,12 +241,6 @@ class GameFragment : Fragment() {
                     withContext(Dispatchers.Main) {
                         showRandomKanji()
                     }
-
-                    delay(2000)
-
-                    withContext(Dispatchers.Main) {
-                        unShowRandomKanji()
-                    }
                 }
             }
 
@@ -242,6 +251,10 @@ class GameFragment : Fragment() {
     }
 
     fun createCircle(color: Int, container: FrameLayout): ImageView {
+        if (!isAdded) {
+            throw IllegalStateException("Fragment is not attached to a context.")
+        }
+
         val newCircle = ImageView(requireContext()).apply {
             layoutParams = FrameLayout.LayoutParams(
                 325, 325
@@ -306,6 +319,8 @@ class GameFragment : Fragment() {
                 override fun onAnimationEnd(animation: Animator) {
                     val parent = newCircle.parent as? ViewGroup
                     parent?.removeView(newCircle)
+                    
+                    unShowRandomKanji()
                 }
 
                 override fun onAnimationCancel(animation: Animator) { }
@@ -319,14 +334,14 @@ class GameFragment : Fragment() {
 
     // Fall when Beat
     fun fallAnimationRed() {
-        CoroutineScope(Dispatchers.Main).launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val newCircle = createCircle(R.drawable.circle_red, gameBinding.leftCircleContainer)
             fallAnimation(newCircle, 1)
         }
     }
 
     fun fallAnimationGreen() {
-        CoroutineScope(Dispatchers.Main).launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             val newCircle = createCircle(R.drawable.circle_green, gameBinding.rightCircleContainer)
             fallAnimation(newCircle, 2)
         }
@@ -368,6 +383,88 @@ class GameFragment : Fragment() {
 
         show = false
         correctSide = 0
+    }
+
+    fun showPopup(typeLayout: Int) {
+        val popupBinding = when(typeLayout) {
+            1 -> PointsFragmentBinding.inflate(LayoutInflater.from(requireContext()))
+            else -> NewRecordFragmentBinding.inflate(LayoutInflater.from(requireContext()))
+        }
+
+        val popupWindow = PopupWindow(
+            popupBinding.root,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        popupWindow.isOutsideTouchable = true
+        popupWindow.setBackgroundDrawable(requireContext().getDrawable(android.R.color.transparent))
+
+        when(typeLayout) {
+            1 -> {
+                val binding = popupBinding as PointsFragmentBinding
+                binding.pointsTextView.text = points.toString()
+
+                binding.okButton.setOnClickListener {
+                    popupWindow.dismiss()
+
+                    parentFragmentManager.beginTransaction()
+                        .remove(this)
+                        .commit()
+                }
+            }
+            else -> {
+                val binding = popupBinding as NewRecordFragmentBinding
+                binding.pointsTextView.text = points.toString()
+
+                binding.okButton.setOnClickListener {
+                    popupWindow.dismiss()
+
+                    parentFragmentManager.beginTransaction()
+                        .remove(this)
+                        .commit()
+                }
+            }
+        }
+
+        val wm = requireActivity().window
+        val params = wm.attributes
+        params.alpha = 0.5f
+        wm.attributes = params
+
+        popupWindow.setOnDismissListener {
+            params.alpha = 1.0f
+            wm.attributes = params
+
+            parentFragmentManager.beginTransaction()
+                .remove(this)
+                .commit()
+        }
+
+        popupWindow.showAtLocation(gameBinding.root, Gravity.CENTER, 0, 0)
+    }
+
+    fun checkRecord() {
+        songId?.let { songId ->
+            CoroutineScope(Dispatchers.IO).launch {
+                val currPoints = db.songDao().getPoints(songId)
+
+                if (currPoints < points) {
+                    db.songDao().updatePoints(songId, points)
+
+                    withContext(Dispatchers.Main) {
+                        (requireActivity() as? GameActivity)?.updateListSongs()
+                        showPopup(2)
+                    }
+                }
+                else {
+                    withContext(Dispatchers.Main) {
+                        showPopup(1)
+                    }
+                }
+            }
+        }
     }
 
     companion object {

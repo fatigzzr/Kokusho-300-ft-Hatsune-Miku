@@ -16,12 +16,12 @@
         style="@style/recordText"/>
 
     <TextView
-        android:id="@+id/pointsNewRecordTextView"
+        android:id="@+id/pointsTextView"
         style="@style/recordText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textSize="200sp"
+        android:textSize="100sp"
         android:includeFontPadding="false" />
 
     <TextView
@@ -32,6 +32,7 @@
         style="@style/recordText" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/okButton"
         android:layout_width="175dp"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/white"

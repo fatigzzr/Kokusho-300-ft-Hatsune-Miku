@@ -70,25 +70,26 @@ class GameActivity : AppCompatActivity(), Communicator {
             songsListId.clear()
             typesList.clear()
 
-            for (id in ids) {
-                // Add id
-                songsListId.add(id)
+            CoroutineScope(Dispatchers.IO).launch {
+                for (id in ids) {
+                    // Add id
+                    songsListId.add(id)
 
-                // Add type
-                CoroutineScope(Dispatchers.IO).launch {
+                    // Add type
                     val countUnlocked = db.songDao().foundSong(id)
+                    Log.d("Game", "$countUnlocked")
 
                     if (countUnlocked >= 1) {
                         typesList.add(0)
-                    }
-                    else {
-                        // CAMBIAR A 1 !!!!!!!!!!!!!!!!!!!!
-                        typesList.add(0)
+                    } else {
+                        typesList.add(1)
                     }
                 }
-            }
 
-            songAdapter.notifyDataSetChanged()
+                withContext(Dispatchers.Main) {
+                    songAdapter.notifyDataSetChanged()
+                }
+            }
         }
     }
 

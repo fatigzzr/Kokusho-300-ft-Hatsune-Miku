@@ -44,7 +44,7 @@ class SongAdapter(val context: Context,
                         when (binding) {
                             is SongItemViewBinding -> {
                                 binding.songImage.setImageBitmap(bitmap)
-                                binding.songTitle.text = songInfo . title
+                                binding.songTitle.text = songInfo.title
                                 binding.songPoints.text = "Record: ${songInfo.points} puntos"
 
                                 binding.root.setOnClickListener {
