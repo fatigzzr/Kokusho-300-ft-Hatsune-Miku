@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.KanjiActivity
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.CharRead
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Character
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.CharacterReading
@@ -35,4 +36,7 @@ interface KanjiDao {
     */
     @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter")
     fun getCharReading() : List<CharRead>
+
+    /*@Query("SELECT DISTINCT r.id, r.radical, r.meaning, c.position FROM Component c INNER JOIN Radical r ON c.idRadical = r.id ORDER BY c.position")
+    suspend fun getRadicalByPosition(): List<KanjiActivity.RadicalWithPosition>*/
 } 

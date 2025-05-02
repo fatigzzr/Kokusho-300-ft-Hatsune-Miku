@@ -21,8 +21,8 @@
         style="@style/TitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="36dp"
         android:text="@string/kanji_title"
         app:layout_constraintStart_toEndOf="@+id/kanjiBackButton"
         app:layout_constraintTop_toTopOf="parent" />
@@ -35,31 +35,28 @@
         android:layout_marginBottom="35dp"
         android:layout_marginStart="35dp"
         android:layout_marginEnd="35dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/kanjiScrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/kanjiTextView" />
 
-    <TextView
-        android:id="@+id/textView"
-        style="@style/DefaultText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="384dp"
-        android:layout_marginStart="35dp"
-        android:text="@string/kanji_instruction"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/kanjiTextView" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/radicalRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <ScrollView
+        android:id="@+id/kanjiScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
         android:layout_marginTop="15dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginEnd="35dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/kanjiTextView"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/sectionContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
