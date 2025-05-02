@@ -37,6 +37,6 @@ interface KanjiDao {
     @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter")
     fun getCharReading() : List<CharRead>
 
-    /*@Query("SELECT DISTINCT r.id, r.radical, r.meaning, c.position FROM Component c INNER JOIN Radical r ON c.idRadical = r.id ORDER BY c.position")
-    suspend fun getRadicalByPosition(): List<KanjiActivity.RadicalWithPosition>*/
+    @Query("SELECT Radical.id, Radical.radical, Radical.meaning, Component.position FROM Radical INNER JOIN Component ON Radical.id = Component.idRadical")
+    fun getAllRadicalsWithPosition(): List<KanjiActivity.RadicalWithPosition>
 } 
