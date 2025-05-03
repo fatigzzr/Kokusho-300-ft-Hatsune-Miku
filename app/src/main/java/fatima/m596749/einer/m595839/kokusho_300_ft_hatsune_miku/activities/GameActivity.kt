@@ -77,7 +77,6 @@ class GameActivity : AppCompatActivity(), Communicator {
 
                     // Add type
                     val countUnlocked = db.songDao().foundSong(id)
-                    Log.d("Game", "$countUnlocked")
 
                     if (countUnlocked >= 1) {
                         typesList.add(0)

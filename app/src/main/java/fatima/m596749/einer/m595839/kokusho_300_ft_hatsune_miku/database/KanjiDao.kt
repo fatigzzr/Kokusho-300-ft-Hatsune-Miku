@@ -29,10 +29,6 @@ interface KanjiDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertComponentBatch(components: List<Component>)
 
-    /* AGREGARLE QUE SOLAMENTE LOS QUE HAS ENCONTRADO
-        @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter WHERE found == true")
-        fun getCharReading() : List<CharRead>
-    */
-    @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter")
+    @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter WHERE found == true")
     fun getCharReading() : List<CharRead>
 } 

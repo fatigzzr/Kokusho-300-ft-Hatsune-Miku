@@ -9,6 +9,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.CharSongQuery
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.SongInfo
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.SongCharacter
@@ -45,4 +46,7 @@ interface SongDao {
     // Update record points of an specific song
     @Query("UPDATE Song SET points = :points WHERE id = :id")
     fun updatePoints(id: Int, points: Int)
+
+    @Query("SELECT time, character FROM SongCharacter JOIN Character ON SongCharacter.idCharacter = Character.id WHERE SongCharacter.idSong = :id AND found = true")
+    fun getSongCharacter(id: Int): List<CharSongQuery>
 } 

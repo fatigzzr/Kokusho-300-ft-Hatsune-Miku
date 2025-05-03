@@ -39,9 +39,10 @@ class GameFragment : Fragment() {
     private lateinit var db: AppDatabase
     private var songId: Int? = null
     private var mediaPlayer: MediaPlayer? = null
-    private var beatsRight = ArrayList<Float>()
-    private var beatsLeft = ArrayList<Float>()
+    private var beatsRight = ArrayList<Pair<Float, Int>>()
+    private var beatsLeft = ArrayList<Pair<Float, Int>>()
     private var beatsRandomKanji = ArrayList<Float>()
+    private var beatsYellow = ArrayList<Pair<Float, String>>()
     private var points = 0
     private lateinit var options: List<CharRead>
     private var show = false
@@ -62,10 +63,11 @@ class GameFragment : Fragment() {
         songId?.let { songId ->
             CoroutineScope(Dispatchers.IO).launch {
                 options = db.kanjiDao().getCharReading()
+                val timesChar = db.songDao().getSongCharacter(songId)
 
                 playAudio("song${songId}.mp3")
-                loadBeats("beats${songId}.txt")
-                triggerPerBeat(beatsLeft, beatsRight)
+                loadBeats("beats${songId}.txt", timesChar)
+                triggerPerBeat()
             }
         }
 
@@ -114,65 +116,102 @@ class GameFragment : Fragment() {
         }
     }
 
-    fun loadBeats(filename: String) {
+    fun loadBeats(filename: String, timesChar:  List<CharSongQuery>) {
         try {
             requireContext().assets.open(filename).use { inputStream ->
                 inputStream.bufferedReader().useLines { lines ->
                     var index = 0
+                    var range = 0.5
                     var prev2  = ArrayDeque<Pair<String, Float>>()
 
                     lines.forEach { line ->
                         if (index % 2 == 0) {
                             val beat = line.toFloat()
+                            var randomChoice = 11
 
-                            // 1-4-> right (0.4), 5-8-> left (0.4), 9-> both (0.1), 10-> both with kanji (0.1)
-                            val randomChoice = (1..10).random()
+                            val match = timesChar.find {
+                                val time = it.time.toFloat()
+                                time != null && time >= beat - range && time <= beat + range
+                            }
+
+                            if (match != null) {
+                                repeat(2) {
+                                    if (prev2.isNotEmpty()) {
+                                        val (type, beat) = prev2.removeLast()
+
+                                        when (type) {
+                                            "right" -> beatsRight.remove(Pair(beat, 1))
+                                            "left" -> beatsLeft.remove(Pair(beat, 1))
+                                            "both" -> {
+                                                beatsRight.remove(Pair(beat, 1))
+                                                beatsLeft.remove(Pair(beat, 1))
+                                            }
+
+                                            "kanji" -> {
+                                                beatsRight.remove(Pair(beat, 1))
+                                                beatsLeft.remove(Pair(beat, 1))
+                                                beatsRandomKanji.remove(beat)
+                                            }
+                                        }
+                                    }
+                                }
+
+                                beatsRight.add(Pair(match.time.toFloat(), 2))
+                                beatsLeft.add(Pair(match.time.toFloat(), 2))
+                                beatsYellow.add(Pair(match.time.toFloat(), match.character))
+                            }
+                            else {
+                                // 1-4-> right (0.4), 5-8-> left (0.4), 9-> both (0.1), 10-> both with kanji (0.1)
+                                randomChoice = (1..10).random()
+                            }
 
                             when {
                                 randomChoice <= 4 -> {
-                                    beatsRight.add(beat)
+                                    beatsRight.add(Pair(beat, 1))
                                     prev2.addLast("right" to beat)
                                 }
 
                                 randomChoice <= 8 -> {
-                                    beatsLeft.add(beat)
+                                    beatsLeft.add(Pair(beat, 1))
                                     prev2.addLast("left" to beat)
                                 }
 
                                 randomChoice == 9 -> {
-                                    beatsRight.add(beat)
-                                    beatsLeft.add(beat)
+                                    beatsRight.add(Pair(beat, 1))
+                                    beatsLeft.add(Pair(beat, 1))
                                     prev2.addLast("both" to beat)
                                 }
 
-                                else -> {
+                                randomChoice == 10 -> {
                                     repeat(2) {
                                         if (prev2.isNotEmpty()) {
                                             val (type, beat) = prev2.removeLast()
 
                                             when (type) {
-                                                "right" -> beatsRight.remove(beat)
-                                                "left" -> beatsLeft.remove(beat)
+                                                "right" -> beatsRight.remove(Pair(beat, 1))
+                                                "left" -> beatsLeft.remove(Pair(beat, 1))
                                                 "both" -> {
-                                                    beatsRight.remove(beat)
-                                                    beatsLeft.remove(beat)
+                                                    beatsRight.remove(Pair(beat, 1))
+                                                    beatsLeft.remove(Pair(beat, 1))
                                                 }
 
                                                 "kanji" -> {
-                                                    beatsRight.remove(beat)
-                                                    beatsLeft.remove(beat)
+                                                    beatsRight.remove(Pair(beat, 1))
+                                                    beatsLeft.remove(Pair(beat, 1))
                                                     beatsRandomKanji.remove(beat)
                                                 }
                                             }
                                         }
                                     }
 
-                                    beatsRight.add(beat)
-                                    beatsLeft.add(beat)
+                                    beatsRight.add(Pair(beat, 1))
+                                    beatsLeft.add(Pair(beat, 1))
                                     beatsRandomKanji.add(beat)
 
                                     prev2.addLast("kanji" to beat)
                                 }
+
+                                else -> { }
                             }
 
                             if (prev2.size > 2) {
@@ -190,12 +229,12 @@ class GameFragment : Fragment() {
         }
     }
 
-    fun triggerPerBeat(beatsRight: List<Float>, beatsLeft: List<Float>) {
+    fun triggerPerBeat() {
         CoroutineScope(Dispatchers.IO).launch {
             val startTime = System.currentTimeMillis()
 
             val right = launch {
-                for (beat in beatsRight) {
+                for ((beat, type) in beatsRight) {
                     val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
 
                     if (delay > 0) {
@@ -206,12 +245,15 @@ class GameFragment : Fragment() {
                         continue
                     }
 
-                    fallAnimationRed()
+                    withContext(Dispatchers.Main) {
+                        fallAnimationRed(type)
+                    }
+
                 }
             }
 
             val left = launch {
-                for (beat in beatsLeft) {
+                for ((beat, type) in beatsLeft) {
                     val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
 
                     if (delay > 0) {
@@ -222,7 +264,10 @@ class GameFragment : Fragment() {
                         continue
                     }
 
-                    fallAnimationGreen()
+                    withContext(Dispatchers.Main) {
+                        fallAnimationGreen(type)
+                    }
+
                 }
             }
 
@@ -244,9 +289,28 @@ class GameFragment : Fragment() {
                 }
             }
 
+            val yellow = launch {
+                for ((beat, character) in beatsYellow) {
+                    val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
+
+                    if (delay > 0) {
+                        delay(delay)
+                    }
+
+                    if (show) {
+                        continue
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        showLyric(character)
+                    }
+                }
+            }
+
             right.join()
             left.join()
             randomKanji.join()
+            yellow.join()
         }
     }
 
@@ -319,8 +383,10 @@ class GameFragment : Fragment() {
                 override fun onAnimationEnd(animation: Animator) {
                     val parent = newCircle.parent as? ViewGroup
                     parent?.removeView(newCircle)
-                    
-                    unShowRandomKanji()
+
+                    if (show) {
+                        unShowRandomKanji()
+                    }
                 }
 
                 override fun onAnimationCancel(animation: Animator) { }
@@ -333,18 +399,48 @@ class GameFragment : Fragment() {
     }
 
     // Fall when Beat
-    fun fallAnimationRed() {
+    fun fallAnimationRed(type: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val newCircle = createCircle(R.drawable.circle_red, gameBinding.leftCircleContainer)
+            val newCircle = if (type == 1) {
+                createCircle(R.drawable.circle_red, gameBinding.leftCircleContainer)
+            }
+            else {
+                createCircle(R.drawable.circle_yellow, gameBinding.leftCircleContainer)
+            }
             fallAnimation(newCircle, 1)
         }
     }
 
-    fun fallAnimationGreen() {
+    fun fallAnimationGreen(type: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val newCircle = createCircle(R.drawable.circle_green, gameBinding.rightCircleContainer)
+            val newCircle = if (type == 1) {
+                createCircle(R.drawable.circle_green, gameBinding.rightCircleContainer)
+            }
+            else {
+                createCircle(R.drawable.circle_yellow, gameBinding.rightCircleContainer)
+            }
             fallAnimation(newCircle, 2)
         }
+    }
+
+    fun showLyric(character: String) {
+        val size = options.size
+        val randomIndex = (0..size-1).random()
+        val randomDrum = (1..2).random()
+
+        when (randomDrum) {
+            1 -> {
+                gameBinding.redDrumTextView.text = character
+                gameBinding.greenDrumTextView.text = options[randomIndex].character
+            }
+            2 -> {
+                gameBinding.redDrumTextView.text = options[randomIndex].character
+                gameBinding.greenDrumTextView.text = character
+            }
+        }
+
+        show = true
+        correctSide = randomDrum
     }
 
     fun showRandomKanji() {
