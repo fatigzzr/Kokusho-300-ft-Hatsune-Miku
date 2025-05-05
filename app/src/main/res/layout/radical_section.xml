@@ -15,7 +15,8 @@
         android:text="Section Title"
         android:textStyle="bold"
         android:textSize="24sp"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginBottom="12dp"
+        style="@style/DefaultText"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/horizontalRecycler"

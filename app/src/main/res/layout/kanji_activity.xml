@@ -68,8 +68,8 @@
 
                 <FrameLayout
                     android:id="@+id/kanjiPartsBox"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
                     android:background="#EEEEEE" />
 
                 <LinearLayout
@@ -84,7 +84,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:text="Significado" />
 
                     <LinearLayout
                         android:id="@+id/wordViewer"
@@ -92,29 +93,32 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingTop="8dp">
+                        >
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:orientation="vertical"
-                            android:paddingHorizontal="8dp">
+                            >
 
                             <TextView
                                 android:id="@+id/kanjiReading"
+                                style="@style/DefaultText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="漢字" />
 
                             <TextView
                                 android:id="@+id/hiraganaReading"
+                                style="@style/DefaultText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="かんじ" />
 
                             <TextView
                                 android:id="@+id/englishReading"
+                                style="@style/DefaultText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Kanji" />
@@ -123,31 +127,30 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:gravity="center">
+                            android:gravity="center"
+                            android:orientation="vertical">
 
                             <Button
-                                android:background="@drawable/circular_button_background"
                                 android:id="@+id/prevWordButton"
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
                                 android:layout_marginBottom="8dp"
+                                android:background="@drawable/circular_button_background"
                                 android:text="←"
                                 android:textColor="@android:color/white"
                                 android:textSize="18sp"
-                                />
+                                app:backgroundTint="#BC002D" />
 
                             <Button
                                 android:id="@+id/nextWordButton"
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
+                                android:background="@drawable/circular_button_background"
                                 android:text="→"
                                 android:textColor="@android:color/white"
                                 android:textSize="18sp"
-                                android:background="@drawable/circular_button_background"/>
+                                app:backgroundTint="#BC002D" />
                         </LinearLayout>
-
-
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
