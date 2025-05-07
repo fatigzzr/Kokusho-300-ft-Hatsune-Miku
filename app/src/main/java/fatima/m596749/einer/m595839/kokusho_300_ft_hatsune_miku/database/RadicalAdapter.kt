@@ -13,6 +13,8 @@ class RadicalAdapter(
     private val onComponentClick: (KanjiActivity.RadicalWithPosition) -> Unit
 ) : RecyclerView.Adapter<RadicalAdapter.RadicalViewHolder>() {
 
+    private val selectedPositions = mutableSetOf<Int>()
+
     inner class RadicalViewHolder(val binding: RadicalItemViewBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -26,8 +28,17 @@ class RadicalAdapter(
         val item = items[position]
         holder.binding.radicalTextView.text = item.radical
 
+        val isSelected = selectedPositions.contains(position)
+        holder.binding.radicalButton.isSelected = isSelected
+
         holder.binding.radicalButton.setOnClickListener {
-            holder.binding.radicalButton.isSelected = !holder.binding.radicalButton.isSelected
+            if (isSelected) {
+                selectedPositions.remove(position)
+            } else {
+                selectedPositions.add(position)
+            }
+
+            notifyItemChanged(position)
             onComponentClick(item)
         }
     }
