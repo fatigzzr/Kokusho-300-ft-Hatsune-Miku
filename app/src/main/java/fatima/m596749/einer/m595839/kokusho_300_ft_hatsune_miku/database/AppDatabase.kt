@@ -21,7 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
-@Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 6)
+@Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 7)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun kanjiDao() : KanjiDao

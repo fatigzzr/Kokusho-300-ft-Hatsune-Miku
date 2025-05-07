@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.KanjiActivity
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.CharRead
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Character
@@ -44,9 +45,12 @@ interface KanjiDao {
     @Query("SELECT DISTINCT character, reading  FROM Character JOIN CharacterReading ON Character.id = CharacterReading.idCharacter")
     fun getCharReading() : List<CharRead>
 
-    @Query("SELECT Radical.id, Radical.radical, Radical.meaning, Component.position FROM Radical INNER JOIN Component ON Radical.id = Component.idRadical")
+    @Query("SELECT DISTINCT Radical.id, Radical.radical, Radical.meaning, Component.position FROM Radical INNER JOIN Component ON Radical.id = Component.idRadical")
     fun getAllRadicalsWithPosition(): List<KanjiActivity.RadicalWithPosition>
 
     @Query("SELECT * FROM Component")
     suspend fun getAllComponents(): List<Component>
+
+    @Query("UPDATE Character SET found = 1 WHERE id = :characterId")
+    suspend fun markAsFound(characterId: Int)
 } 

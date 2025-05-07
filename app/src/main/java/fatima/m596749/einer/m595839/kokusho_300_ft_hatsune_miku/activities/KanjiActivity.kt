@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.kanji.WordPageAdapter
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.KanjiDao
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.Position
@@ -55,8 +57,7 @@ class KanjiActivity : AppCompatActivity() {
 
     private lateinit var componentsGroupedByCharacterId: Map<Int, List<Component>>
 
-    var currentWordIndex = 0
-    var kanjiId = -1
+    private var kanjiId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,9 +70,6 @@ class KanjiActivity : AppCompatActivity() {
             "KanjiDB.db"
         ).build().kanjiDao()
 
-        val prevButton = binding.prevWordButton
-        val nextButton = binding.nextWordButton
-
         val selectedRadicals = mutableListOf<RadicalWithPosition>()
 
         fun updateKanjiDisplay() {
@@ -80,30 +78,21 @@ class KanjiActivity : AppCompatActivity() {
                 val wordList = kanjiDao.getWordsByCharacterId(kanjiId)
 
                 withContext(Dispatchers.Main) {
-                    //binding.meaningTextView.text = character.meaning
-
-                    fun displayWord(word: CharacterWord) {
-                        binding.kanjiReading.text = word.wordKanji
-                        binding.hiraganaReading.text = word.wordHiragana
-                        binding.englishReading.text = word.wordEnglish
+                    binding.kanjiMeaning.text = character.meaning.replaceFirstChar {
+                        if (it.isLowerCase()) it.titlecase() else it.toString()
                     }
 
                     if (wordList.isNotEmpty()) {
-                        displayWord(wordList[0])
-                    }
-
-                    prevButton.setOnClickListener {
-                        if (wordList.isNotEmpty()) {
-                            currentWordIndex = (currentWordIndex - 1 + wordList.size) % wordList.size
-                            displayWord(wordList[currentWordIndex])
-                        }
-                    }
-
-                    nextButton.setOnClickListener {
-                        if (wordList.isNotEmpty()) {
-                            currentWordIndex = (currentWordIndex + 1) % wordList.size
-                            displayWord(wordList[currentWordIndex])
-                        }
+                        val adapter = WordPageAdapter(wordList)
+                        binding.wordViewPager.adapter = adapter
+                        binding.dotsIndicator.attachTo(binding.wordViewPager)
+                    } else {
+                        val placeholderList = listOf(
+                            CharacterWord(-1, "Hiragana", "Kanji", "English")
+                        )
+                        val adapter = WordPageAdapter(placeholderList)
+                        binding.wordViewPager.adapter = adapter
+                        binding.dotsIndicator.attachTo(binding.wordViewPager)
                     }
                 }
             }
@@ -117,12 +106,8 @@ class KanjiActivity : AppCompatActivity() {
         fun showKanjiInBox(kanji: String) {
             val textView = TextView(this).apply {
                 text = kanji
-                textSize = 64f
-                gravity = Gravity.CENTER
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT
-                )
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                setTextAppearance(R.style.KanjiBox)
             }
 
             binding.kanjiPartsBox.removeAllViews()
@@ -131,20 +116,16 @@ class KanjiActivity : AppCompatActivity() {
 
         fun clearKanjiDisplay() {
             binding.kanjiPartsBox.removeAllViews()
-            binding.kanjiReading.apply {
-                text = "Kanji"
-                setTypeface(null, Typeface.ITALIC)
-            }
 
-            binding.hiraganaReading.apply {
-                text = "Hiragana"
-                setTypeface(null, Typeface.ITALIC)
-            }
+            binding.kanjiMeaning.text = "Significado"
 
-            binding.englishReading.apply {
-                text = "English"
-                setTypeface(null, Typeface.ITALIC)
-            }
+            val placeholderList = listOf(
+                CharacterWord(-1, "Hiragana", "Kanji", "English")
+            )
+
+            val placeholderAdapter = WordPageAdapter(placeholderList)
+            binding.wordViewPager.adapter = placeholderAdapter
+            binding.dotsIndicator.setViewPager2(binding.wordViewPager)
         }
 
         clearKanjiDisplay()
@@ -160,6 +141,7 @@ class KanjiActivity : AppCompatActivity() {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         val kanji = kanjiDao.getCharacterById(characterId)
+                        kanjiDao.markAsFound(characterId)
 
                         withContext(Dispatchers.Main) {
                             kanjiId = characterId
