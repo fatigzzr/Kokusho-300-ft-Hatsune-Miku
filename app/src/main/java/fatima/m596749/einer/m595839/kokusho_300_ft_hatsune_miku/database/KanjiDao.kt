@@ -53,4 +53,12 @@ interface KanjiDao {
 
     @Query("UPDATE Character SET found = 1 WHERE id = :characterId")
     suspend fun markAsFound(characterId: Int)
+
+    data class FoundCountResult(
+        val foundCount: Int,
+        val totalCount: Int
+    )
+
+    @Query("SELECT COUNT(CASE WHEN found = 1 THEN 1 END) AS foundCount, COUNT(*) AS totalCount FROM Character")
+    fun getFoundAndTotalCounts(): LiveData<FoundCountResult>
 } 

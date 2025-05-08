@@ -15,8 +15,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.InvalidationTracker
 import androidx.room.Room
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.kanji.WordPageAdapter
@@ -69,6 +71,11 @@ class KanjiActivity : AppCompatActivity() {
             AppDatabase::class.java,
             "KanjiDB.db"
         ).build().kanjiDao()
+
+        kanjiDao.getFoundAndTotalCounts().observe(this) { result ->
+            val displayText = "Kanji Found: ${result.foundCount}/${result.totalCount}"
+            binding.kanjiTextView.text = displayText
+        }
 
         val selectedRadicals = mutableListOf<RadicalWithPosition>()
 
