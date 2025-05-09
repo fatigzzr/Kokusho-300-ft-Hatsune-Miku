@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

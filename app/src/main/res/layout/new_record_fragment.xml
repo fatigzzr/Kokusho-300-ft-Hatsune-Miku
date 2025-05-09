@@ -40,6 +40,7 @@
         android:text="@string/ok_text"
         android:layout_marginBottom="15dp"
         android:layout_marginTop="5dp"
-        style="@style/recordBlackText" />
+        android:textColor="@color/black"
+        android:textAppearance="@style/recordBlackText" />
 
 </LinearLayout>

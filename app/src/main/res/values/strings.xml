@@ -7,4 +7,8 @@
     <string name="new_record_text">¡Nuevo Record!</string>
     <string name="points_text">puntos</string>
     <string name="ok_text">Ok!</string>
+    <string name="exit_game_message_title">¿Estás seguro de que quieres salir?</string>
+    <string name="exit_game_message_body">Si sales ahora, se perderá el progreso de esta partida.</string>
+    <string name="exit_text">Salir</string>
+    <string name="cancel_text">Cancelar</string>
 </resources>

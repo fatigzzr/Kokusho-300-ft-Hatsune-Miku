@@ -4,21 +4,17 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.provider.MediaStore.Audio
-import android.renderscript.ScriptGroup.Binding
 import android.util.Log
 import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.CorrectionInfo
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.PopupWindow
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
-import androidx.transition.Visibility
-import androidx.viewbinding.ViewBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.SongGameFragmentBinding
 import kotlinx.coroutines.CoroutineScope
@@ -26,12 +22,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.GameActivity
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.ExitGameFragmentBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.NewRecordFragmentBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.PointsFragmentBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import java.sql.Time
 
 
 class GameFragment : Fragment() {
@@ -52,6 +47,14 @@ class GameFragment : Fragment() {
         super.onCreate(savedInstanceState)
         songId = arguments?.getInt("id")
         db = AppDatabase.getDatabase(requireContext())
+
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                showExitPopup()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
     override fun onCreateView(
@@ -246,7 +249,9 @@ class GameFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        fallAnimationRed(type)
+                        if (isAdded) {
+                            fallAnimationRed(type)
+                        }
                     }
 
                 }
@@ -265,7 +270,9 @@ class GameFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        fallAnimationGreen(type)
+                        if (isAdded) {
+                            fallAnimationGreen(type)
+                        }
                     }
 
                 }
@@ -284,7 +291,9 @@ class GameFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        showRandomKanji()
+                        if (isAdded) {
+                            showRandomKanji()
+                        }
                     }
                 }
             }
@@ -302,7 +311,9 @@ class GameFragment : Fragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        showLyric(character)
+                        if (isAdded) {
+                            showLyric(character)
+                        }
                     }
                 }
             }
@@ -425,22 +436,35 @@ class GameFragment : Fragment() {
 
     fun showLyric(character: String) {
         val size = options.size
-        val randomIndex = (0..size-1).random()
         val randomDrum = (1..2).random()
 
-        when (randomDrum) {
-            1 -> {
-                gameBinding.redDrumTextView.text = character
-                gameBinding.greenDrumTextView.text = options[randomIndex].character
-            }
-            2 -> {
-                gameBinding.redDrumTextView.text = options[randomIndex].character
-                gameBinding.greenDrumTextView.text = character
-            }
+        if (size == 1) {
+            setCharacters(randomDrum, character, "女")
+        }
+        else {
+            var randomIndex : Int
+            do {
+                randomIndex = (0..size-1).random()
+            } while (options[randomIndex].character == character)
+
+            setCharacters(randomDrum, character, options[randomIndex].character)
         }
 
         show = true
         correctSide = randomDrum
+    }
+
+    fun setCharacters(randomDrum: Int, correct: String, incorrect: String) {
+        when (randomDrum) {
+            1 -> {
+                gameBinding.redDrumTextView.text = correct
+                gameBinding.greenDrumTextView.text = incorrect
+            }
+            2 -> {
+                gameBinding.redDrumTextView.text = incorrect
+                gameBinding.greenDrumTextView.text = correct
+            }
+        }
     }
 
     fun showRandomKanji() {
@@ -448,23 +472,25 @@ class GameFragment : Fragment() {
         val randomIndex = (0..size-1).random()
         val randomDrum = (1..2).random()
 
-        var randomIndex2: Int
-        do {
-            randomIndex2 = (0..size - 1).random()
-        } while (randomIndex2 == randomIndex)
-
         gameBinding.readingTextView.visibility = View.VISIBLE
         gameBinding.readingTextView.text = options[randomIndex].reading
 
-        when (randomDrum) {
-            1 -> {
-                gameBinding.redDrumTextView.text = options[randomIndex].character
-                gameBinding.greenDrumTextView.text = options[randomIndex2].character
+        if (size == 1) {
+            if (options[randomIndex].character != "女") {
+                setCharacters(randomDrum, options[randomIndex].character, "女")
             }
-            2 -> {
-                gameBinding.redDrumTextView.text = options[randomIndex2].character
-                gameBinding.greenDrumTextView.text = options[randomIndex].character
+            else {
+                setCharacters(randomDrum, options[randomIndex].character, "人")
             }
+        }
+
+        else {
+            var randomIndex2: Int
+            do {
+                randomIndex2 = (0..size - 1).random()
+            } while (randomIndex2 == randomIndex)
+
+            setCharacters(randomDrum, options[randomIndex].character, options[randomIndex2].character)
         }
 
         show = true
@@ -534,7 +560,7 @@ class GameFragment : Fragment() {
             wm.attributes = params
 
             parentFragmentManager.beginTransaction()
-                .remove(this)
+                .remove(this@GameFragment)
                 .commit()
         }
 
@@ -561,6 +587,49 @@ class GameFragment : Fragment() {
                 }
             }
         }
+    }
+
+    fun pauseGame() {
+        mediaPlayer?.pause()
+        show = true
+    }
+
+    fun showExitPopup() {
+        val popupBinding = ExitGameFragmentBinding.inflate(LayoutInflater.from(requireContext()))
+
+        val popupWindow = PopupWindow(
+            popupBinding.root,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        popupWindow.isOutsideTouchable = true
+        popupWindow.setBackgroundDrawable(requireContext().getDrawable(android.R.color.transparent))
+
+
+        popupBinding.yesButton.setOnClickListener {
+            popupWindow.dismiss()
+            parentFragmentManager.beginTransaction()
+                .remove(this@GameFragment)
+                .commit()
+        }
+
+        popupBinding.cancelButton.setOnClickListener {
+            popupWindow.dismiss()
+        }
+
+        val wm = requireActivity().window
+        val params = wm.attributes
+        params.alpha = 0.5f
+        wm.attributes = params
+
+        popupWindow.setOnDismissListener {
+            params.alpha = 1.0f
+            wm.attributes = params
+        }
+
+        popupWindow.showAtLocation(gameBinding.root, Gravity.CENTER, 0, 0)
     }
 
     companion object {

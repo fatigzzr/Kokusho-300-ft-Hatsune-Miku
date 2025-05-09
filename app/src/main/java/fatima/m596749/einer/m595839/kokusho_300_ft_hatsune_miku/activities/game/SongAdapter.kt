@@ -2,23 +2,17 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game
 
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.renderscript.ScriptGroup.Binding
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import androidx.viewbinding.ViewBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.SongItemViewBinding
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.LockedSongItemViewBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class SongAdapter(val context: Context,
                   var songsId: List<Int>,

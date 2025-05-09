@@ -20,7 +20,6 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/kanjiButton"
-        style="@style/DefaultText"
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:layout_marginTop="60dp"
@@ -29,6 +28,8 @@
         android:backgroundTint="@color/red_transparent"
         android:text="@string/kanji_title"
         android:textAlignment="textStart"
+        android:textAppearance="@style/DefaultText"
+        android:textColor="@color/black"
         app:icon="@drawable/baseline_arrow_forward_ios_24"
         app:iconTint="@color/red"
         app:iconSize="30dp"
@@ -41,7 +42,6 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/gameButton"
-        style="@style/DefaultText"
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:layout_marginTop="32dp"
@@ -50,6 +50,8 @@
         android:backgroundTint="@color/red_transparent"
         android:text="@string/rhythm_title"
         android:textAlignment="textStart"
+        android:textAppearance="@style/DefaultText"
+        android:textColor="@color/black"
         app:icon="@drawable/baseline_arrow_forward_ios_24"
         app:iconGravity="end"
         app:iconSize="30dp"
