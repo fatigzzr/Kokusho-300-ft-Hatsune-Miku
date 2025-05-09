@@ -10,10 +10,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.Communicator
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.GameFragment
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.game.SongAdapter
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Character
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.GameActivityBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Song

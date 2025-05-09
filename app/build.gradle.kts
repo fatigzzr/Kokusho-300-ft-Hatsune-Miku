@@ -52,4 +52,6 @@ dependencies {
     implementation(libs.androidx.room.common)
     implementation(libs.androidx.room.ktx)
     kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation ("com.tbuonomo:dotsindicator:4.3")
 }
