@@ -1,0 +1,376 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 6,
+    "identityHash": "0018b224df9e7efa8ac27a08569b310a",
+    "entities": [
+      {
+        "tableName": "Character",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `character` TEXT NOT NULL, `meaning` TEXT NOT NULL, `found` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "character",
+            "columnName": "character",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "meaning",
+            "columnName": "meaning",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "found",
+            "columnName": "found",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "CharacterReading",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idCharacter` INTEGER NOT NULL, `reading` TEXT NOT NULL, PRIMARY KEY(`idCharacter`, `reading`), FOREIGN KEY(`idCharacter`) REFERENCES `Character`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "idCharacter",
+            "columnName": "idCharacter",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reading",
+            "columnName": "reading",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idCharacter",
+            "reading"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "Character",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idCharacter"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "CharacterWord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idCharacter` INTEGER NOT NULL, `wordKanji` TEXT NOT NULL, `wordHiragana` TEXT NOT NULL, `wordEnglish` TEXT NOT NULL, PRIMARY KEY(`idCharacter`, `wordKanji`), FOREIGN KEY(`idCharacter`) REFERENCES `Character`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "idCharacter",
+            "columnName": "idCharacter",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wordKanji",
+            "columnName": "wordKanji",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wordHiragana",
+            "columnName": "wordHiragana",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wordEnglish",
+            "columnName": "wordEnglish",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idCharacter",
+            "wordKanji"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "Character",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idCharacter"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Component",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idCharacter` INTEGER NOT NULL, `idRadical` INTEGER NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`idCharacter`, `idRadical`, `position`), FOREIGN KEY(`idCharacter`) REFERENCES `Character`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`idRadical`) REFERENCES `Radical`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "idCharacter",
+            "columnName": "idCharacter",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idRadical",
+            "columnName": "idRadical",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idCharacter",
+            "idRadical",
+            "position"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Component_idCharacter",
+            "unique": false,
+            "columnNames": [
+              "idCharacter"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Component_idCharacter` ON `${TABLE_NAME}` (`idCharacter`)"
+          },
+          {
+            "name": "index_Component_idRadical",
+            "unique": false,
+            "columnNames": [
+              "idRadical"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Component_idRadical` ON `${TABLE_NAME}` (`idRadical`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Character",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idCharacter"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Radical",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idRadical"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Radical",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `radical` TEXT NOT NULL, `meaning` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "radical",
+            "columnName": "radical",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "meaning",
+            "columnName": "meaning",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Song",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `title` TEXT NOT NULL, `artist` TEXT NOT NULL, `image` BLOB NOT NULL, `audio` BLOB NOT NULL, `points` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "artist",
+            "columnName": "artist",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audio",
+            "columnName": "audio",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "points",
+            "columnName": "points",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SongCharacter",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`idSong` INTEGER NOT NULL, `idCharacter` INTEGER NOT NULL, `time` INTEGER NOT NULL, PRIMARY KEY(`idSong`, `idCharacter`, `time`), FOREIGN KEY(`idSong`) REFERENCES `Song`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`idCharacter`) REFERENCES `Character`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "idSong",
+            "columnName": "idSong",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idCharacter",
+            "columnName": "idCharacter",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "idSong",
+            "idCharacter",
+            "time"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_SongCharacter_idCharacter",
+            "unique": false,
+            "columnNames": [
+              "idCharacter"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SongCharacter_idCharacter` ON `${TABLE_NAME}` (`idCharacter`)"
+          },
+          {
+            "name": "index_SongCharacter_idSong",
+            "unique": false,
+            "columnNames": [
+              "idSong"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SongCharacter_idSong` ON `${TABLE_NAME}` (`idSong`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Song",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idSong"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Character",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idCharacter"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0018b224df9e7efa8ac27a08569b310a')"
+    ]
+  }
+}

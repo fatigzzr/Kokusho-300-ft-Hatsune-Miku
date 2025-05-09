@@ -11,5 +11,5 @@ data class Song(
     val artist: String,
     val image: ByteArray,
     val audio: ByteArray,
-    val points: Int
+    var points: Int
 )

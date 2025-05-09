@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/songGameFragment"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/songGameFragment"
+    android:background="@color/white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imageView"
@@ -28,6 +28,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/redDrum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="-80dp"
@@ -36,6 +37,7 @@
         app:layout_constraintStart_toStartOf="@+id/imageView4" />
 
     <ImageView
+        android:id="@+id/greenDrum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="-80dp"
@@ -44,15 +46,62 @@
         app:layout_constraintStart_toStartOf="@+id/imageView" />
 
     <TextView
+        android:id="@+id/redDrumTextView"
+        style="@style/recordBlackText"
+        android:textSize="56sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/redDrum"
+        app:layout_constraintStart_toStartOf="@+id/redDrum"
+        app:layout_constraintTop_toTopOf="@+id/redDrum" />
+
+    <TextView
+        android:id="@+id/greenDrumTextView"
+        style="@style/recordBlackText"
+        android:textSize="56sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/greenDrum"
+        app:layout_constraintStart_toStartOf="@+id/greenDrum"
+        app:layout_constraintTop_toTopOf="@+id/greenDrum" />
+
+    <FrameLayout
+        android:id="@+id/leftCircleContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView4"
+        app:layout_constraintStart_toStartOf="@+id/imageView4"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/rightCircleContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toStartOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/readingTextView"
         style="@style/gameSongText"
         android:layout_width="match_parent"
         android:layout_height="68dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="44dp"
         android:background="@color/white_transparent"
         android:gravity="center"
-        android:text="やま"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
