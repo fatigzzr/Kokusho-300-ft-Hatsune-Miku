@@ -1,11 +1,24 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.room.InvalidationTracker
 import androidx.room.Room
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.kanji.WordPageAdapter
@@ -15,6 +28,7 @@ import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.Positio
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.RadicalAdapter
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.CharacterWord
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Component
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Radical
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.KanjiActivityBinding
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.RadicalSectionBinding
 import kotlinx.coroutines.CoroutineScope
@@ -57,6 +71,11 @@ class KanjiActivity : AppCompatActivity() {
             AppDatabase::class.java,
             "KanjiDB.db"
         ).build().kanjiDao()
+
+        kanjiDao.getFoundAndTotalCounts().observe(this) { result ->
+            val displayText = "Kanji Found: ${result.foundCount}/${result.totalCount}"
+            binding.kanjiTextView.text = displayText
+        }
 
         val selectedRadicals = mutableListOf<RadicalWithPosition>()
 
