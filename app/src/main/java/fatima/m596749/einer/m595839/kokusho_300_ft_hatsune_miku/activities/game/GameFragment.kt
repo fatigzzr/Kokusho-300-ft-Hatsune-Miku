@@ -277,10 +277,13 @@ class GameFragment : Fragment() {
         }
     }
 
+    // Asynchronous - Trigger the mechanism for each type of circle scenario at the corresponding time
     fun triggerPerBeat() {
         CoroutineScope(Dispatchers.IO).launch {
+            // Get the current time (when the song started)
             val startTime = System.currentTimeMillis()
 
+            // For each right side beat
             val right = launch {
                 for ((beat, type) in beatsRight) {
                     val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
@@ -302,6 +305,7 @@ class GameFragment : Fragment() {
                 }
             }
 
+            // For each left side beat
             val left = launch {
                 for ((beat, type) in beatsLeft) {
                     val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
@@ -323,6 +327,7 @@ class GameFragment : Fragment() {
                 }
             }
 
+            // For each random Kanji and both side beat
             val randomKanji = launch {
                 for (beat in beatsRandomKanji) {
                     val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
@@ -343,6 +348,7 @@ class GameFragment : Fragment() {
                 }
             }
 
+            // For each yellow circle beat
             val yellow = launch {
                 for ((beat, character) in beatsYellow) {
                     val delay = (beat * 1000).toLong() - (System.currentTimeMillis() - startTime)
