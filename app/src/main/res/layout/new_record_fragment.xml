@@ -41,6 +41,7 @@
         android:layout_marginBottom="15dp"
         android:layout_marginTop="5dp"
         android:textColor="@color/black"
-        android:textAppearance="@style/recordBlackText" />
+        android:textAppearance="@style/recordBlackText"
+        android:textSize="26sp" />
 
 </LinearLayout>
