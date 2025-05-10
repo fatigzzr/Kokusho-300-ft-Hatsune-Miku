@@ -73,7 +73,7 @@ class KanjiActivity : AppCompatActivity() {
         ).build().kanjiDao()
 
         kanjiDao.getFoundAndTotalCounts().observe(this) { result ->
-            val displayText = "Kanji Found: ${result.foundCount}/${result.totalCount}"
+            val displayText = "Encontrados: ${result.foundCount}/${result.totalCount}"
             binding.kanjiTextView.text = displayText
         }
 

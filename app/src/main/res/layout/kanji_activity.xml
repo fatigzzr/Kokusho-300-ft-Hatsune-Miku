@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="36dp"
-        android:text="Found: "
+        android:text="Encontrados: "
         app:layout_constraintStart_toEndOf="@+id/kanjiBackButton"
         app:layout_constraintTop_toTopOf="parent" />
 
