@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-05-09T14:45:22.278306Z">
+        <DropdownSelection timestamp="2025-05-10T04:24:40.299567Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=/Users/fati/.android/avd/Medium_Phone_API_35.avd" />

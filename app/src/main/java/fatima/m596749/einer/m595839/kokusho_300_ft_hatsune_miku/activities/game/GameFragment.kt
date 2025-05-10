@@ -28,48 +28,63 @@ import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.Poin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
-
+// Fragment for the rhythm game of an specific song
 class GameFragment : Fragment() {
-    private lateinit var gameBinding: SongGameFragmentBinding
-    private lateinit var db: AppDatabase
-    private var songId: Int? = null
-    private var mediaPlayer: MediaPlayer? = null
-    private var beatsRight = ArrayList<Pair<Float, Int>>()
-    private var beatsLeft = ArrayList<Pair<Float, Int>>()
-    private var beatsRandomKanji = ArrayList<Float>()
-    private var beatsYellow = ArrayList<Pair<Float, String>>()
-    private var points = 0
-    private lateinit var options: List<CharRead>
-    private var show = false
-    private var correctSide = 0
+    // Initialize variables
+    private lateinit var gameBinding: SongGameFragmentBinding // Layout binding
+    private lateinit var db: AppDatabase // Database for the queries
+    private var songId: Int? = null // Song id of the song being played
+    private var mediaPlayer: MediaPlayer? = null // Media Player used to play the song audio
+    private var beatsRight = ArrayList<Pair<Float, Int>>() // List of beats appearing on the right side {time, type = 1 (green) or 2 (yellow)}
+    private var beatsLeft = ArrayList<Pair<Float, Int>>() // List of beats appearing on the left side {time, type = 1 (red) or 2 (yellow)}
+    private var beatsRandomKanji = ArrayList<Float>() // List of beats appearing with a random Kanjis {time}
+    private var beatsYellow = ArrayList<Pair<Float, String>>() // List of beats appearing with the lyric Kanji {time, character}
+    private var points = 0 // Points of the current game
+    private lateinit var options: List<CharRead> // Options for the select random Kanji (only Kanjis that have been found)
+    private var show = false // Know if circles can keep falling (true -> pause, random or yellow event is happening)
+    private var correctSide = 0 // Correct drum side
 
+    // Fragment is being created
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Get the Song Id from the Game Activity
         songId = arguments?.getInt("id")
+        // Get the app DB
         db = AppDatabase.getDatabase(requireContext())
 
+        // Get a callback object for the back icon being pressed event, enabling it and saying that a the Exit Popup will show
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 showExitPopup()
             }
         }
-
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    // Fragment View is being created
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Inflate the Game Fragment layout
         gameBinding = SongGameFragmentBinding.inflate(inflater, container, false)
 
+        // If the fragment saved the song Id
         songId?.let { songId ->
             CoroutineScope(Dispatchers.IO).launch {
+                // Get the options (for random Kanji) from the DB
                 options = db.kanjiDao().getCharReading()
+                // Get characters in the song (time, character) from the DB
                 val timesChar = db.songDao().getSongCharacter(songId)
 
+                // Start playing the song audio (preloaded)
                 playAudio("song${songId}.mp3")
+
+                // Load the beats (with a preloaded beats file and the characters in the song and that have been found)
                 loadBeats("beats${songId}.txt", timesChar)
+
+                // Start triggering each beat
                 triggerPerBeat()
             }
         }
@@ -81,19 +96,25 @@ class GameFragment : Fragment() {
     // When the fragment is paused (eg. go back to prev view)
     override fun onPause() {
         super.onPause()
+
+        // Stop the song audio
         stopAudio()
     }
 
     // When the fragment is destroyed
     override fun onDestroyView() {
         super.onDestroyView()
+
+        // Stop the audio
         stopAudio()
     }
 
     // Start playing the Song
     fun playAudio(filename: String) {
+        // File Descriptor of the audio file
         val fileDescriptor = requireContext().assets.openFd(filename)
 
+        // Create a media player and set the data as the audio file descriptor
         mediaPlayer = MediaPlayer()
             .apply {
                 setDataSource(fileDescriptor.fileDescriptor, fileDescriptor.startOffset, fileDescriptor.length)
@@ -102,6 +123,7 @@ class GameFragment : Fragment() {
                 start()
             }
 
+        // When the media player finish playing the song audio, stop the audio
         mediaPlayer?.setOnCompletionListener {
             stopAudio()
             checkRecord()
@@ -110,6 +132,7 @@ class GameFragment : Fragment() {
 
     // Stop playing the Song
     fun stopAudio() {
+        // If there is a media player playing, stop it and release it
         mediaPlayer?.let {
             if(it.isPlaying) {
                 it.stop()
@@ -119,25 +142,33 @@ class GameFragment : Fragment() {
         }
     }
 
+    // Load the beats of the song to the corresponding list (right, left, random Kanji, yellow)
     fun loadBeats(filename: String, timesChar:  List<CharSongQuery>) {
         try {
+            // Get the file that has the beats of the song
             requireContext().assets.open(filename).use { inputStream ->
+                // Get the file's lines
                 inputStream.bufferedReader().useLines { lines ->
-                    var index = 0
-                    var range = 0.5
-                    var prev2  = ArrayDeque<Pair<String, Float>>()
+                    var index = 0 // Know the number of the line the loop is currently
+                    var range = 1 // Range of 1s
+                    var prev2  = ArrayDeque<Pair<String, Float>>() // Save the last 2 inserted beats {type, time}
 
+                    // Process each line (each beat)
                     lines.forEach { line ->
+                        // Skip 1 line between lines (every 2 lines) (to not get very close beats, and reduce game's difficulty)
                         if (index % 2 == 0) {
-                            val beat = line.toFloat()
-                            var randomChoice = 11
+                            val beat = line.toFloat() // Convert the linea (beat) to float
+                            var randomChoice = 11 // Default random number (use when it's the yellow circle case)
 
+                            // If there's a match between the beat time and the lyric Kanji time (range +-1s -> no func requirement)
                             val match = timesChar.find {
                                 val time = it.time.toFloat()
                                 time != null && time >= beat - range && time <= beat + range
                             }
 
+                            // If there was a match -> yellow circle case
                             if (match != null) {
+                                // Remove the last 2 beats circles (to leave time for the user to answer)
                                 repeat(2) {
                                     if (prev2.isNotEmpty()) {
                                         val (type, beat) = prev2.removeLast()
@@ -159,33 +190,43 @@ class GameFragment : Fragment() {
                                     }
                                 }
 
+                                // Add beat to the right, left {time, type yellow = 2} and yellow list {time, yellow circle character} (Because it needs circles on both sides)
                                 beatsRight.add(Pair(match.time.toFloat(), 2))
                                 beatsLeft.add(Pair(match.time.toFloat(), 2))
                                 beatsYellow.add(Pair(match.time.toFloat(), match.character))
                             }
+
+                            // If it's not yellow circle case
                             else {
-                                // 1-4-> right (0.4), 5-8-> left (0.4), 9-> both (0.1), 10-> both with kanji (0.1)
+                                // Choose a random scenario
+                                // 1-4-> right (40%), 5-8-> left (40%), 9-> both (10%), 10-> both with kanji (10%)
                                 randomChoice = (1..10).random()
                             }
 
+                            // Add the corresponding circles to the chosen scenario
                             when {
+                                // Right circle scenario
                                 randomChoice <= 4 -> {
                                     beatsRight.add(Pair(beat, 1))
                                     prev2.addLast("right" to beat)
                                 }
 
+                                // Left circle scenario
                                 randomChoice <= 8 -> {
                                     beatsLeft.add(Pair(beat, 1))
                                     prev2.addLast("left" to beat)
                                 }
 
+                                // Both circles scenario
                                 randomChoice == 9 -> {
                                     beatsRight.add(Pair(beat, 1))
                                     beatsLeft.add(Pair(beat, 1))
                                     prev2.addLast("both" to beat)
                                 }
 
+                                // Random Kanji and both circles scenario
                                 randomChoice == 10 -> {
+                                    // Remove last 2 beats (to leave time for the user to answer)
                                     repeat(2) {
                                         if (prev2.isNotEmpty()) {
                                             val (type, beat) = prev2.removeLast()
@@ -207,6 +248,7 @@ class GameFragment : Fragment() {
                                         }
                                     }
 
+                                    // Add right, left (to have 2 circles) and random beat (to have the kanji)
                                     beatsRight.add(Pair(beat, 1))
                                     beatsLeft.add(Pair(beat, 1))
                                     beatsRandomKanji.add(beat)
@@ -214,21 +256,24 @@ class GameFragment : Fragment() {
                                     prev2.addLast("kanji" to beat)
                                 }
 
+                                // Case of 11 -> if yellow circle case happened on this line (beat)
                                 else -> { }
                             }
 
+                            // Keep only the 2 last beats
                             if (prev2.size > 2) {
                                 prev2.removeFirst()
                             }
                         }
 
+                        // Increment indexing (representing being on the next line)
                         index++
                     }
                 }
             }
         }
         catch (e: Exception) {
-            Log.e("GameFragment", "Error loading beats: ${e.message}")
+            Log.e("GameFragment", "Error loading beats: ${e.message}") // Any error of the load beats
         }
     }
 

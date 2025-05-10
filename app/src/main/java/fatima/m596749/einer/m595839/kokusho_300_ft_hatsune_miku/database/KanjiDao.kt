@@ -36,6 +36,7 @@ interface KanjiDao {
     @Query("SELECT * FROM CharacterWord WHERE idCharacter = :id")
     suspend fun getWordsByCharacterId(id: Int): List<CharacterWord>
 
+    // Get the {character, reading} from the characters that have been found (get only 1 reading)
     @Query("""
         SELECT Character.character AS character, CharacterReading.reading AS reading 
         FROM Character 
