@@ -2,7 +2,6 @@ package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.room.Database
 import androidx.room.Room
@@ -19,7 +18,6 @@ import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entitie
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 
 @Database(entities = [Character::class, CharacterReading::class, CharacterWord::class, Component::class, Radical::class, Song::class, SongCharacter::class], version = 7)
 @TypeConverters(Converters::class)
@@ -27,7 +25,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun kanjiDao() : KanjiDao
     abstract fun songDao() : SongDao
 
+
     companion object {
+        //Lists of Kanji data
         val characters = listOf(
             Character(1, "人", "person", false),
             Character(2, "男", "man", false),
@@ -1284,14 +1284,18 @@ abstract class AppDatabase : RoomDatabase() {
             Component(100, 63, Position.OUTSIDE)
         )
 
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        // Function to get a singleton instance of the database
         fun getDatabase(context: Context): AppDatabase {
             val dbFile = context.getDatabasePath("KanjiDB.db")
 
+            // Get the file location for the database
             lateinit var instance: AppDatabase
 
+            // Create the Room database instance
             instance = Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
@@ -1299,12 +1303,15 @@ abstract class AppDatabase : RoomDatabase() {
             )
                 // Delete the old database and recreate it with schema version changes
                 .fallbackToDestructiveMigration()
+
+                // Callback to populate the database when it's created for the first time
                 .addCallback(object : RoomDatabase.Callback() {
                     @RequiresApi(Build.VERSION_CODES.O)
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
 
                         CoroutineScope(Dispatchers.IO).launch {
+                            // Insert initial data into the tables
                             instance.kanjiDao().insertCharacterBatch(characters)
                             instance.kanjiDao().insertCharacterWordBatch(words)
                             instance.kanjiDao().insertRadicalBatch(radicals)
@@ -1320,25 +1327,11 @@ abstract class AppDatabase : RoomDatabase() {
                 })
                 .build()
 
+            // Ensure foreign key constraints are enforced
             instance.openHelper.writableDatabase.execSQL("PRAGMA foreign_keys = ON;")
 
             INSTANCE = instance
             return instance
-        }
-
-        fun exportDatabase(context: Context) {
-            val dbName = "KanjiDB.db"
-            val dbFile = context.getDatabasePath(dbName)
-
-            val exportDir = context.getExternalFilesDir(null)  // or use Downloads with proper permissions
-            val exportFile = File(exportDir, "$dbName-export.db")
-
-            try {
-                dbFile.copyTo(exportFile, overwrite = true)
-                Log.d("RoomDatabase", "Database exported to: ${exportFile.absolutePath}")
-            } catch (e: Exception) {
-                Log.e("RoomDatabase", "Failed to export database", e)
-            }
         }
     }
 }

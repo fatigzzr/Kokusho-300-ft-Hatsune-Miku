@@ -1,46 +1,26 @@
 package fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.room.InvalidationTracker
 import androidx.room.Room
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.R
 import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.activities.kanji.WordPageAdapter
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.AppDatabase
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.KanjiDao
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.Position
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.RadicalAdapter
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.CharacterWord
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Component
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.Radical
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.KanjiActivityBinding
-import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.RadicalSectionBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.*
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.database.entities.*
+import fatima.m596749.einer.m595839.kokusho_300_ft_hatsune_miku.databinding.*
+import kotlinx.coroutines.*
 
 class KanjiActivity : AppCompatActivity() {
 
+    // View binding and database access object
     private lateinit var binding: KanjiActivityBinding
     private lateinit var kanjiDao: KanjiDao
 
+    // Data class to pair a Radical with its position
     data class RadicalWithPosition(
         val id: Int,
         val radical: String,
@@ -48,6 +28,7 @@ class KanjiActivity : AppCompatActivity() {
         val position: Position
     )
 
+    // Lists to store radicals by position
     lateinit var rightRadicals: List<RadicalWithPosition>
     lateinit var leftRadicals: List<RadicalWithPosition>
     lateinit var upRadicals: List<RadicalWithPosition>
@@ -57,8 +38,10 @@ class KanjiActivity : AppCompatActivity() {
     lateinit var chairRadicals: List<RadicalWithPosition>
     lateinit var otherRadicals: List<RadicalWithPosition>
 
+    // Map of every Character's Components
     private lateinit var componentsGroupedByCharacterId: Map<Int, List<Component>>
 
+    // ID of the currently shown Kanji, or -1 if none is shown
     private var kanjiId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,77 +49,79 @@ class KanjiActivity : AppCompatActivity() {
         binding = KanjiActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize database DAO
         kanjiDao = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
             "KanjiDB.db"
         ).build().kanjiDao()
 
+        // Calculate and show amount of Kanji found and Kanji available
         kanjiDao.getFoundAndTotalCounts().observe(this) { result ->
             val displayText = "Encontrados: ${result.foundCount}/${result.totalCount}"
             binding.kanjiTextView.text = displayText
         }
 
+        // Stores currently selected radicals
         val selectedRadicals = mutableListOf<RadicalWithPosition>()
 
+        // Updates the display with the Kanji meaning and associated words
         fun updateKanjiDisplay() {
             CoroutineScope(Dispatchers.IO).launch {
                 val character = kanjiDao.getCharacterById(kanjiId)
                 val wordList = kanjiDao.getWordsByCharacterId(kanjiId)
 
                 withContext(Dispatchers.Main) {
+                    // Capitalize the first letter of the meaning
                     binding.kanjiMeaning.text = character.meaning.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase() else it.toString()
                     }
 
-                    if (wordList.isNotEmpty()) {
-                        val adapter = WordPageAdapter(wordList)
-                        binding.wordViewPager.adapter = adapter
-                        binding.dotsIndicator.attachTo(binding.wordViewPager)
-                    } else {
-                        val placeholderList = listOf(
-                            CharacterWord(-1, "Hiragana", "Kanji", "English")
-                        )
-                        val adapter = WordPageAdapter(placeholderList)
-                        binding.wordViewPager.adapter = adapter
-                        binding.dotsIndicator.attachTo(binding.wordViewPager)
-                    }
+                    // Set up the ViewPager, with default words declared
+                    val adapter = WordPageAdapter(
+                        if (wordList.isNotEmpty()) wordList
+                        else listOf(CharacterWord(-1, "Hiragana", "Kanji", "English"))
+                    )
+                    binding.wordViewPager.adapter = adapter
+                    binding.dotsIndicator.attachTo(binding.wordViewPager)
                 }
             }
         }
 
+        // Load all Kanji and their components
         CoroutineScope(Dispatchers.IO).launch {
             val components = kanjiDao.getAllComponents()
             componentsGroupedByCharacterId = components.groupBy { it.idCharacter }
         }
 
+        // Display a Kanji character in the top box
         fun showKanjiInBox(kanji: String) {
             val textView = TextView(this).apply {
                 text = kanji
                 gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                 setTextAppearance(R.style.KanjiBox)
             }
-
             binding.kanjiPartsBox.removeAllViews()
             binding.kanjiPartsBox.addView(textView)
         }
 
+        // Clear Kanji information from the box
         fun clearKanjiDisplay() {
             binding.kanjiPartsBox.removeAllViews()
-
             binding.kanjiMeaning.text = "Significado"
 
             val placeholderList = listOf(
                 CharacterWord(-1, "Hiragana", "Kanji", "English")
             )
-
             val placeholderAdapter = WordPageAdapter(placeholderList)
             binding.wordViewPager.adapter = placeholderAdapter
             binding.dotsIndicator.setViewPager2(binding.wordViewPager)
         }
 
+        // Initially show empty display
         clearKanjiDisplay()
 
+        // Check if the selected radicals form a complete Kanji
         fun checkKanjiCompletion() {
             val selectedSet = selectedRadicals.map { Pair(it.id, it.position) }.toSet()
 
@@ -164,9 +149,9 @@ class KanjiActivity : AppCompatActivity() {
             Log.d("KanjiMatch", "❌ No match found")
             kanjiId = -1
             clearKanjiDisplay()
-
         }
 
+        // Add or remove Radical from selection list
         fun toggleRadicalSelection(radical: RadicalWithPosition) {
             if (selectedRadicals.contains(radical)) {
                 selectedRadicals.remove(radical)
@@ -176,11 +161,12 @@ class KanjiActivity : AppCompatActivity() {
             checkKanjiCompletion()
         }
 
+        // Load radicals from database and create horizontal sections by position
         CoroutineScope(Dispatchers.IO).launch {
             val allRadicals = kanjiDao.getAllRadicalsWithPosition()
-
             val grouped = allRadicals.groupBy { it.position }
 
+            // Assign radicals to lists by position
             rightRadicals = grouped[Position.RIGHT] ?: emptyList()
             leftRadicals = grouped[Position.LEFT] ?: emptyList()
             upRadicals = grouped[Position.UP] ?: emptyList()
@@ -191,6 +177,7 @@ class KanjiActivity : AppCompatActivity() {
             otherRadicals = grouped[Position.OTHER] ?: emptyList()
 
             withContext(Dispatchers.Main) {
+                // Display each radical group in a horizontal section with its title
                 val sectionData = listOf(
                     "RIGHT" to rightRadicals,
                     "LEFT" to leftRadicals,
@@ -208,7 +195,7 @@ class KanjiActivity : AppCompatActivity() {
                     sectionBinding.sectionTitle.text = title
                     sectionBinding.horizontalRecycler.apply {
                         layoutManager = LinearLayoutManager(this@KanjiActivity, LinearLayoutManager.HORIZONTAL, false)
-                        adapter = RadicalAdapter(radicals){ radicalWithPosition ->
+                        adapter = RadicalAdapter(radicals) { radicalWithPosition ->
                             toggleRadicalSelection(radicalWithPosition)
                         }
                     }
@@ -218,6 +205,7 @@ class KanjiActivity : AppCompatActivity() {
             }
         }
 
+        // Back button to close activity
         binding.kanjiBackButton.setOnClickListener {
             finish()
         }
