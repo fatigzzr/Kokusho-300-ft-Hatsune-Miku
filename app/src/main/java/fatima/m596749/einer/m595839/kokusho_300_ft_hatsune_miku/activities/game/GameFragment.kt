@@ -369,6 +369,7 @@ class GameFragment : Fragment() {
                 }
             }
 
+            // Wait for all the threads to finish
             right.join()
             left.join()
             randomKanji.join()
@@ -376,6 +377,7 @@ class GameFragment : Fragment() {
         }
     }
 
+    // Create the circle view:{green, red, yellow} container:{right or left container}
     fun createCircle(color: Int, container: FrameLayout): ImageView {
         if (!isAdded) {
             throw IllegalStateException("Fragment is not attached to a context.")
@@ -397,11 +399,13 @@ class GameFragment : Fragment() {
         return newCircle
     }
 
+    // Start the fall animation and the event listeners
     fun fallAnimation(newCircle: ImageView, side: Int) {
-        val drumY = gameBinding.redDrum.y
-        val drumHeight = gameBinding.redDrum.height
-        val targetY = drumY + drumHeight / 4 + 40
+        val drumY = gameBinding.redDrum.y // Drum Y position
+        val drumHeight = gameBinding.redDrum.height // Drum height
+        val targetY = drumY + drumHeight / 4 + 40 // Goal for the Y position (when the animation stops)
 
+        // When the circle is clicked -> ex. Update points
         newCircle.setOnClickListener {
             val distance = Math.abs(newCircle.y - targetY)
             val threshold = 100 * resources.displayMetrics.density // 50 dp
@@ -431,6 +435,7 @@ class GameFragment : Fragment() {
             }
         }
 
+        // Animation config
         val animator = ObjectAnimator.ofFloat(
             newCircle,
             "translationY",
@@ -439,9 +444,11 @@ class GameFragment : Fragment() {
         ).apply {
             duration = 2000
 
+            // Animation events
             addListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animation: Animator) { }
 
+                // Reached target Y
                 override fun onAnimationEnd(animation: Animator) {
                     val parent = newCircle.parent as? ViewGroup
                     parent?.removeView(newCircle)
@@ -457,22 +464,26 @@ class GameFragment : Fragment() {
             } )
         }
 
+        // Start animation
         animator.start()
     }
 
-    // Fall when Beat
+    // Fall when Beat for red circles (initialize the process)
     fun fallAnimationRed(type: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
+            // 1. Create circle
             val newCircle = if (type == 1) {
                 createCircle(R.drawable.circle_red, gameBinding.leftCircleContainer)
             }
             else {
                 createCircle(R.drawable.circle_yellow, gameBinding.leftCircleContainer)
             }
+            // 2. Falling Animation
             fallAnimation(newCircle, 1)
         }
     }
 
+    // Fall when Beat for green circles (initialize the process)
     fun fallAnimationGreen(type: Int) {
         viewLifecycleOwner.lifecycleScope.launch {
             val newCircle = if (type == 1) {
@@ -485,14 +496,19 @@ class GameFragment : Fragment() {
         }
     }
 
+    // Initialize process for circles related to lyrics
     fun showLyric(character: String) {
+        // Get a random drum (choose the drum where the correct answer will be)
         val size = options.size
         val randomDrum = (1..2).random()
 
+        // In case there's only 1 discovered char (Default wrong char)
         if (size == 1) {
             setCharacters(randomDrum, character, "女")
         }
+        // More characters aside of the lyric char
         else {
+            // Get a different random character
             var randomIndex : Int
             do {
                 randomIndex = (0..size-1).random()
@@ -505,6 +521,7 @@ class GameFragment : Fragment() {
         correctSide = randomDrum
     }
 
+    // Update the text on the drums
     fun setCharacters(randomDrum: Int, correct: String, incorrect: String) {
         when (randomDrum) {
             1 -> {
@@ -518,23 +535,27 @@ class GameFragment : Fragment() {
         }
     }
 
+    // Initialize process for circles with random Kanjis
     fun showRandomKanji() {
         val size = options.size
-        val randomIndex = (0..size-1).random()
-        val randomDrum = (1..2).random()
+        val randomIndex = (0..size-1).random() // Choose random kanji (correct option)
+        val randomDrum = (1..2).random() // Choose random drum (drum where the correct kanji will appear)
 
+        // Show the reading for the correct Kanji
         gameBinding.readingTextView.visibility = View.VISIBLE
         gameBinding.readingTextView.text = options[randomIndex].reading
 
+        // If there's only 1 discovered Kanji: Get a different random Kanji (incorrect option)
         if (size == 1) {
             if (options[randomIndex].character != "女") {
-                setCharacters(randomDrum, options[randomIndex].character, "女")
+                setCharacters(randomDrum, options[randomIndex].character, "女") // Default incorrect Kanji
             }
             else {
-                setCharacters(randomDrum, options[randomIndex].character, "人")
+                setCharacters(randomDrum, options[randomIndex].character, "人") // 2nd Default incorrect Kanji
             }
         }
 
+        // More than 1 found Kanji: Get a different random Kanji (incorrect option)
         else {
             var randomIndex2: Int
             do {
@@ -548,6 +569,7 @@ class GameFragment : Fragment() {
         correctSide = randomDrum
     }
 
+    // Restart the view (remove the text from the lyric or random Kanji)
     fun unShowRandomKanji() {
         gameBinding.readingTextView.visibility = View.INVISIBLE
         gameBinding.readingTextView.text = ""
@@ -558,6 +580,7 @@ class GameFragment : Fragment() {
         correctSide = 0
     }
 
+    // Show PopUp: Points gained at the end of the game
     fun showPopup(typeLayout: Int) {
         val popupBinding = when(typeLayout) {
             1 -> PointsFragmentBinding.inflate(LayoutInflater.from(requireContext()))
@@ -618,6 +641,7 @@ class GameFragment : Fragment() {
         popupWindow.showAtLocation(gameBinding.root, Gravity.CENTER, 0, 0)
     }
 
+    // Check if the points gained in the current game are greater than the current record: update and show popup (different for new record or normal points)
     fun checkRecord() {
         songId?.let { songId ->
             CoroutineScope(Dispatchers.IO).launch {
@@ -640,11 +664,7 @@ class GameFragment : Fragment() {
         }
     }
 
-    fun pauseGame() {
-        mediaPlayer?.pause()
-        show = true
-    }
-
+    // Show popup when back button is clicked (will loss points)
     fun showExitPopup() {
         val popupBinding = ExitGameFragmentBinding.inflate(LayoutInflater.from(requireContext()))
 
@@ -683,6 +703,7 @@ class GameFragment : Fragment() {
         popupWindow.showAtLocation(gameBinding.root, Gravity.CENTER, 0, 0)
     }
 
+    // Create a fragment that passes the songId
     companion object {
         @JvmStatic
         fun newInstance(id: Int): GameFragment {
